@@ -1,0 +1,40 @@
+/* Styles for song list item component */
+
+/*The main contianer for one row */
+.song-list-item {
+  display: flex;
+  justify-content: space-between; /* this pushes the duration and info to the right side */
+  align-items: center;
+  width: 100%;
+  padding: 0.75rem 0.5rem;
+  border-bottom: 1px solid #282828;
+  cursor: pointer;
+  transition: background-color 0.2s ease-in-out;
+}
+
+.song-list-item:hover {
+  background-color: #282828;
+  border-radius: 8px;
+}
+
+.song-info {
+  display: flex;
+  flex-direction: column; /* put the title on top of the artist name */
+  text-align: left;
+}
+
+.song-title {
+  font-weight: 600;
+  color: #fff;
+}
+
+.song-artist {
+  font-size: 0.9rem;
+  color: #aaa;
+}
+
+.song-duration {
+  font-size: 0.9rem;
+  color: #aaa;
+  font-weight: 500;
+}

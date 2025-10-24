@@ -1,0 +1,202 @@
+.riff-off-page {
+    width: 100%;
+    justify-content: flex-start;
+    padding: 1.5rem 3rem;
+    position: relative;
+}
+
+.floating-save-button {
+  position: absolute;
+  top: 1.5rem;
+  right: 1.5rem;
+  z-index: 100;
+  text-decoration: none;
+  color: #e0e0e0;
+  font-weight: 700;
+  font-size: 0.9rem;
+  padding: 0.7rem 1.25rem;
+  transition: all 0.2s ease-in-out;
+  border-radius: 9999px;
+  background-color: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.floating-save-button:hover {
+  color: #ffffff;
+  background-color: rgba(255, 255, 255, 0.2);
+  transform: scale(1.05);
+}
+
+.riff-header {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    margin-bottom: 1.5rem;
+    position: relative;
+    justify-content: center;
+    padding-top: 3rem;
+}
+
+.back-link {
+    position: absolute;
+    top: 3rem; 
+    left: 0;
+    font-size: 1.5rem;
+    color: #fff;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.riff-header h2 {
+    font-size: 1.25rem;
+}
+
+/* --- CHOSEN LYRICS BOX STYLES --- */
+.chosen-lyrics-box {
+  width: 100%;
+  max-width: 800px;
+  margin: 0 auto 1.5rem auto;
+  padding: 1rem 1.5rem;
+  border-radius: 12px;
+
+  /* Apply the blur effect */
+  background-color: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.chosen-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.75rem;
+}
+
+.chosen-header h3 {
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+.clear-button {
+  background: rgba(255, 255, 255, 0.15); /* Match the new style */
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.2); /* Add subtle border */
+  padding: 0.4rem 0.8rem;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.clear-button:hover {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+.chosen-lyrics-content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+/* ---  CHOSEN LYRIC (INSIDE BOX) STYLES --- */
+.chosen-lyric {
+  background-color: rgba(255, 255, 255, 0.05); /* Make it slightly brighter */
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  text-align: left;
+  font-style: italic;
+  color: #e0e0e0; /* Brighter text */
+  min-height: 2.5rem;
+  display: flex;
+  align-items: center;
+  border-left: 3px solid #1DB954;
+}
+
+.riff-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    width: 100%;
+    flex-grow: 1;
+    overflow-y: auto;
+    min-height: 300px;
+}
+
+/* ---  LYRIC COLUMN STYLES --- */
+.lyric-column {
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    border-radius: 12px;
+    
+    /* Apply the blur effect */
+    background-color: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+/* ---   SONG HEADER STYLES --- */
+.song-header {
+    text-align: left;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    position: sticky;
+    top: -1rem; 
+    z-index: 1;
+    
+    /* Darker blur to hide text scrolling under it */
+    background-color: rgba(40, 40, 40, 0.7);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    
+   
+    margin-left: -1rem;
+    margin-right: -1rem;
+    margin-top: -1rem;
+    
+    /* Add back padding */
+    padding-left: 1rem;
+    padding-right: 1rem;
+    padding-top: 1rem;
+    
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.song-header h3 {
+    font-size: 1rem;
+    font-weight: 700;
+}
+
+.song-header p {
+    font-size: 0.9rem;
+    color: #b3b3b3;
+}
+
+.lyrics {
+    text-align: left;
+    padding-top: 0.5rem;
+}
+
+.lyric-line {
+    font-size: 0.9rem;
+    margin-bottom: 0.5rem;
+    line-height: 1.4;
+    cursor: pointer;
+    transition: transform 0.15s ease-out, font-weight 0.15s ease-out;
+    transform-origin: left center;
+}
+
+.lyric-line:hover {
+    transform: scale(1.5);
+    font-weight: 900;
+    color: #ffffff;
+}

@@ -1,0 +1,30 @@
+/* Styles for search bar */
+.search-bar-container {
+  position: relative;
+  width: 100%;
+  margin-bottom: 1.5rem;
+}
+
+/* Search icon */
+.search-icon {
+  position: absolute;
+  top: 50%;
+  left: 1rem;
+  transform: translateY(-50%);
+  color: #aaa;
+}
+
+/* Text input field */
+.search-input {
+  width: 100%;
+  padding: 0.75rem 1rem 0.75rem 2.5rem;
+  border-radius: 9999px;
+  border: none;
+  background-color: #282828;
+  color: #fff;
+  font-size: 1rem;
+}
+
+.search-input::placeholder {
+  color: #aaa;
+}

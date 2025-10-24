@@ -1,0 +1,34 @@
+/* new riff page styles */
+.new-riff-page {
+    justify-content: space-between;
+    width: 100%;
+    padding: 1.5rem;
+}
+/* This allows the song list to scroll while the button stays at the bottom */
+
+.top-section {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.section-title {
+    text-align: left;
+    width: 100%;
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+}
+
+.song-list {
+    width: 100%;
+    flex-grow: 1;
+    overflow-y: auto;
+}
+/* This container sticks to the bottom */
+.bottom-section {
+    width: 100%;
+    padding-top: 1rem;
+    border-top: 1px solid #282828;
+    margin-top: 1rem;
+}
