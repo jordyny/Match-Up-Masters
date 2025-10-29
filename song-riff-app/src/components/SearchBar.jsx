@@ -1,6 +1,7 @@
 import React from 'react';
 import { FaSearch } from 'react-icons/fa';
 import './SearchBar.css';
+import { getLyrics } from '../geniusAPI';
 
 const SearchBar = () => {
   return (
