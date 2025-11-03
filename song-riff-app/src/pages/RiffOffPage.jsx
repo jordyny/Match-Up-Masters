@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { motion } from 'framer-motion'; 
 import { pageVariants, pageTransition } from '../pageAnimations';
@@ -39,10 +39,19 @@ const LyricColumn = ({ songTitle, artist, lyrics, songId, onLyricClick, selected
 const RiffOffPage = () => {
   const { id } = useParams();
   const initialSongId = Number(id);
+  const [leftSongId, setLeftSongId] = useState(initialSongId);
   const [selectedLyric1, setSelectedLyric1] = useState(null);
   const [selectedLyric2, setSelectedLyric2] = useState(null);
   const [rightSongId, setRightSongId] = useState(null);
   const [isPickerOpen, setIsPickerOpen] = useState(false);
+  const [isAdvancing, setIsAdvancing] = useState(false);
+
+  useEffect(() => {
+    setLeftSongId(initialSongId);
+    setSelectedLyric1(null);
+    setRightSongId(null);
+    setSelectedLyric2(null);
+  }, [initialSongId]);
 
   const getLyricsForSong = (song) => {
     if (!song) return [];
@@ -50,7 +59,7 @@ const RiffOffPage = () => {
     return Array.isArray(lines) ? lines : [];
   };
 
-  const leftSong = useMemo(() => songs.find(s => s.id === initialSongId), [initialSongId]);
+  const leftSong = useMemo(() => songs.find(s => s.id === leftSongId), [leftSongId]);
   const leftLyrics = useMemo(() => getLyricsForSong(leftSong), [leftSong]);
   const rightSong = useMemo(() => songs.find(s => s.id === rightSongId), [rightSongId]);
   const rightLyrics = useMemo(() => getLyricsForSong(rightSong), [rightSong]);
@@ -75,6 +84,19 @@ const RiffOffPage = () => {
   const similarity = (selectedLyric1 && selectedLyric2)
     ? getSimilarityPercentage(selectedLyric1, selectedLyric2)
     : null;
+  const handleNextRound = () => {
+    if (!rightSong) return;
+    setIsAdvancing(true);
+    setTimeout(() => {
+      setLeftSongId(rightSongId);
+      setRightSongId(null);
+      setSelectedLyric1(selectedLyric2);
+      setSelectedLyric2(null);
+      setIsAdvancing(false);
+      setIsPickerOpen(false);
+    }, 250);
+  };
+
   const similarityColor = similarity == null
     ? 'neutral'
     : similarity <= 25
@@ -141,42 +163,55 @@ const RiffOffPage = () => {
           </p>
         </div>
       </div>
+
+      {selectedLyric1 && selectedLyric2 && (
+        <div className="next-round-container">
+          <button className="next-round-button" onClick={handleNextRound}>
+            Next Round →
+          </button>
+        </div>
+      )}
      {/* Container for the two lyric columns */}
-      <div className="riff-container">
+      <div className={`riff-container ${isAdvancing ? 'advancing' : ''}`}>
         {leftSong && (
-          <LyricColumn
-            songTitle={leftSong.title}
-            artist={leftSong.artist}
-            lyrics={leftLyrics}
-            songId={1}
-            onLyricClick={handleLyricClick}
-            selectedLyric={selectedLyric1}
-          />
+          <div className="column-wrapper left-col">
+            <LyricColumn
+              songTitle={leftSong.title}
+              artist={leftSong.artist}
+              lyrics={leftLyrics}
+              songId={1}
+              onLyricClick={handleLyricClick}
+              selectedLyric={selectedLyric1}
+            />
+          </div>
         )}
 
         {/* Right column: either selected song or add box */}
         {rightSong ? (
-          <LyricColumn
-            songTitle={rightSong.title}
-            artist={rightSong.artist}
-            lyrics={rightLyrics}
-            songId={2}
-            onLyricClick={handleLyricClick}
-            selectedLyric={selectedLyric2}
-          />
+          <div className="column-wrapper right-col">
+            <LyricColumn
+              songTitle={rightSong.title}
+              artist={rightSong.artist}
+              lyrics={rightLyrics}
+              songId={2}
+              onLyricClick={handleLyricClick}
+              selectedLyric={selectedLyric2}
+            />
+          </div>
         ) : (
-          <div className="lyric-column add-song-box">
-            <div className="add-song-content">
-              <button className="add-song-button" onClick={() => setIsPickerOpen(v => !v)}>+
-              </button>
-            </div>
+          <div className="column-wrapper right-col">
+            <div className="lyric-column add-song-box">
+              <div className="add-song-content">
+                <button className="add-song-button" onClick={() => setIsPickerOpen(v => !v)}>+
+                </button>
+              </div>
             {isPickerOpen && (
               <div className="mini-search">
                 <div className="mini-search-inner">
                   <SearchBar />
                   <div className="mini-song-list">
                     {songs
-                      .filter(s => s.id !== initialSongId)
+                      .filter(s => s.id !== leftSongId)
                       .map(s => (
                         <div
                           key={s.id}
@@ -194,6 +229,7 @@ const RiffOffPage = () => {
                 </div>
               </div>
             )}
+            </div>
           </div>
         )}
       </div>

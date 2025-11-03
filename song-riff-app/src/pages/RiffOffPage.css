@@ -70,6 +70,30 @@
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
+.next-round-container {
+  width: 100%;
+  max-width: 800px;
+  margin: -0.5rem auto 1.25rem auto;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.next-round-button {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  padding: 0.6rem 1rem;
+  border-radius: 9999px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.15s ease, background-color 0.2s ease;
+}
+
+.next-round-button:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+  transform: translateX(2px);
+}
+
 .chosen-header {
   display: flex;
   justify-content: space-between;
@@ -164,6 +188,19 @@
     flex-grow: 1;
     overflow-y: auto;
     min-height: 300px;
+}
+
+.column-wrapper {
+  transition: transform 250ms ease, opacity 250ms ease;
+}
+
+.riff-container.advancing .left-col {
+  transform: translateX(-30%);
+  opacity: 0;
+}
+
+.riff-container.advancing .right-col {
+  transform: translateX(-55%);
 }
 
 /* ---  LYRIC COLUMN STYLES --- */
