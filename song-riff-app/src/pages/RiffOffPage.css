@@ -14,6 +14,12 @@
   margin-bottom: 0.5rem;
 }
 
+.progress-trail-inner {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
 .trail-dot {
   fill: #ffffff;
 }
@@ -23,6 +29,25 @@
   stroke-width: 2;
   stroke-dasharray: 6 6;
   animation: dash-move 1.2s linear infinite;
+}
+
+/* Score pill to the right of the trail */
+.score-pill {
+  height: 28px;
+  padding: 0 10px;
+  border-radius: 9999px;
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  color: #fff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 0.85rem;
+}
+
+.score-pill span {
+  white-space: nowrap;
 }
 
 @keyframes dash-move {

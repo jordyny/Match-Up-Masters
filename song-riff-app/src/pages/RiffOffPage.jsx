@@ -47,6 +47,7 @@ const RiffOffPage = () => {
   const [isAdvancing, setIsAdvancing] = useState(false);
   const [dotCount, setDotCount] = useState(1);
   const [addedDotThisRound, setAddedDotThisRound] = useState(false);
+  const [totalScore, setTotalScore] = useState(0);
 
   useEffect(() => {
     setLeftSongId(initialSongId);
@@ -55,6 +56,7 @@ const RiffOffPage = () => {
     setSelectedLyric2(null);
     setDotCount(1);
     setAddedDotThisRound(false);
+    setTotalScore(0);
   }, [initialSongId]);
 
   const getLyricsForSong = (song) => {
@@ -90,6 +92,9 @@ const RiffOffPage = () => {
     : null;
   const handleNextRound = () => {
     if (!rightSong) return;
+    if (similarity != null) {
+      setTotalScore((s) => s + similarity);
+    }
     setIsAdvancing(true);
     setTimeout(() => {
       setLeftSongId(rightSongId);
@@ -133,35 +138,40 @@ const RiffOffPage = () => {
     }
   }, [selectedLyric2, addedDotThisRound]);
 
-  const ProgressTrail = ({ count = 1 }) => {
-    const width = 320;
+  const ProgressTrail = ({ count = 1, score = 0 }) => {
     const height = 26;
-    const padding = 16;
+    const padding = 12;
     const r = 4;
-    const gap = count > 1 ? (width - padding * 2) / (count - 1) : 0;
+    const step = 28; // fixed distance between dots
+    const width = Math.max(padding * 2 + (count - 1) * step, padding * 2 + r * 2);
     const points = Array.from({ length: count }, (_, i) => ({
-      x: Math.round(padding + i * gap),
+      x: Math.round(padding + i * step),
       y: Math.round(height / 2),
     }));
     return (
       <div className="progress-trail">
-        <svg width={width} height={height} viewBox={`0 0 ${width} ${height}`}>
-          {points.map((p, i) =>
-            i > 0 ? (
-              <line
-                key={`line-${i}`}
-                x1={points[i - 1].x}
-                y1={points[i - 1].y}
-                x2={p.x}
-                y2={p.y}
-                className="trail-line"
-              />
-            ) : null
-          )}
-          {points.map((p, i) => (
-            <circle key={`dot-${i}`} cx={p.x} cy={p.y} r={r} className="trail-dot" />
-          ))}
-        </svg>
+        <div className="progress-trail-inner" style={{ width }}>
+          <svg width={width} height={height} viewBox={`0 0 ${width} ${height}`}>
+            {points.map((p, i) =>
+              i > 0 ? (
+                <line
+                  key={`line-${i}`}
+                  x1={points[i - 1].x}
+                  y1={points[i - 1].y}
+                  x2={p.x}
+                  y2={p.y}
+                  className="trail-line"
+                />
+              ) : null
+            )}
+            {points.map((p, i) => (
+              <circle key={`dot-${i}`} cx={p.x} cy={p.y} r={r} className="trail-dot" />
+            ))}
+          </svg>
+          <div className="score-pill" title="Total score">
+            <span>{score}%</span>
+          </div>
+        </div>
       </div>
     );
   };
@@ -176,8 +186,7 @@ const RiffOffPage = () => {
       transition={pageTransition}
     >
     <div className="page-content riff-off-page">
-
-      <ProgressTrail count={dotCount} />
+      <ProgressTrail count={dotCount} score={totalScore} />
 
       {/* --- for future add save button --- */}
       <Link to="/home" className="floating-save-button">
