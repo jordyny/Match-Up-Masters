@@ -143,7 +143,8 @@ const RiffOffPage = () => {
     const padding = 12;
     const r = 4;
     const step = 28; // fixed distance between dots
-    const width = Math.max(padding * 2 + (count - 1) * step, padding * 2 + r * 2);
+    const minWidth = 320; // restore original visual footprint
+    const width = Math.max(minWidth, padding * 2 + (count - 1) * step, padding * 2 + r * 2);
     const points = Array.from({ length: count }, (_, i) => ({
       x: Math.round(padding + i * step),
       y: Math.round(height / 2),
