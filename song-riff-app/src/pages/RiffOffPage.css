@@ -5,6 +5,32 @@
     position: relative;
 }
 
+/* Progress trail at the top */
+.progress-trail {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.trail-dot {
+  fill: #ffffff;
+}
+
+.trail-line {
+  stroke: #ffffff;
+  stroke-width: 2;
+  stroke-dasharray: 6 6;
+  animation: dash-move 1.2s linear infinite;
+}
+
+@keyframes dash-move {
+  to {
+    stroke-dashoffset: -24;
+  }
+}
+
 .floating-save-button {
   position: absolute;
   top: 1.5rem;

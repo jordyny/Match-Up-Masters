@@ -45,12 +45,16 @@ const RiffOffPage = () => {
   const [rightSongId, setRightSongId] = useState(null);
   const [isPickerOpen, setIsPickerOpen] = useState(false);
   const [isAdvancing, setIsAdvancing] = useState(false);
+  const [dotCount, setDotCount] = useState(1);
+  const [addedDotThisRound, setAddedDotThisRound] = useState(false);
 
   useEffect(() => {
     setLeftSongId(initialSongId);
     setSelectedLyric1(null);
     setRightSongId(null);
     setSelectedLyric2(null);
+    setDotCount(1);
+    setAddedDotThisRound(false);
   }, [initialSongId]);
 
   const getLyricsForSong = (song) => {
@@ -94,6 +98,7 @@ const RiffOffPage = () => {
       setSelectedLyric2(null);
       setIsAdvancing(false);
       setIsPickerOpen(false);
+      setAddedDotThisRound(false);
     }, 250);
   };
 
@@ -120,6 +125,47 @@ const RiffOffPage = () => {
     setSelectedLyric2(null);
   };
 
+  // When second lyric is selected and we haven't added a dot for this round yet, increment the trail
+  useEffect(() => {
+    if (selectedLyric2 && !addedDotThisRound) {
+      setDotCount((c) => c + 1);
+      setAddedDotThisRound(true);
+    }
+  }, [selectedLyric2, addedDotThisRound]);
+
+  const ProgressTrail = ({ count = 1 }) => {
+    const width = 320;
+    const height = 26;
+    const padding = 16;
+    const r = 4;
+    const gap = count > 1 ? (width - padding * 2) / (count - 1) : 0;
+    const points = Array.from({ length: count }, (_, i) => ({
+      x: Math.round(padding + i * gap),
+      y: Math.round(height / 2),
+    }));
+    return (
+      <div className="progress-trail">
+        <svg width={width} height={height} viewBox={`0 0 ${width} ${height}`}>
+          {points.map((p, i) =>
+            i > 0 ? (
+              <line
+                key={`line-${i}`}
+                x1={points[i - 1].x}
+                y1={points[i - 1].y}
+                x2={p.x}
+                y2={p.y}
+                className="trail-line"
+              />
+            ) : null
+          )}
+          {points.map((p, i) => (
+            <circle key={`dot-${i}`} cx={p.x} cy={p.y} r={r} className="trail-dot" />
+          ))}
+        </svg>
+      </div>
+    );
+  };
+
   return (
     <motion.div
       className="page-container" 
@@ -130,6 +176,8 @@ const RiffOffPage = () => {
       transition={pageTransition}
     >
     <div className="page-content riff-off-page">
+
+      <ProgressTrail count={dotCount} />
 
       {/* --- for future add save button --- */}
       <Link to="/home" className="floating-save-button">
