@@ -15,17 +15,23 @@ const LyricColumn = ({ songTitle, artist, lyrics, songId, onLyricClick, selected
       <h3>{songTitle}</h3>
       <p>{artist}</p>
     </div>
-    <div className="lyrics">
-      {lyrics.map((line, index) => (
-        <p
-          key={index}
-          className={`lyric-line ${selectedLyric === line ? 'selected' : ''}`}
-          onClick={() => onLyricClick(line, songId)}
-        >
-          {line}
-        </p>
-      ))}
-    </div>
+    {lyrics && lyrics.length > 0 ? (
+      <div className="lyrics">
+        {lyrics.map((line, index) => (
+          <p
+            key={index}
+            className={`lyric-line ${selectedLyric === line ? 'selected' : ''}`}
+            onClick={() => onLyricClick(line, songId)}
+          >
+            {line}
+          </p>
+        ))}
+      </div>
+    ) : (
+      <div className="lyrics no-lyrics">
+        <p className="no-lyrics-text">Lyrics unavailable for this song.</p>
+      </div>
+    )}
   </div>
 );
 
@@ -38,10 +44,16 @@ const RiffOffPage = () => {
   const [rightSongId, setRightSongId] = useState(null);
   const [isPickerOpen, setIsPickerOpen] = useState(false);
 
+  const getLyricsForSong = (song) => {
+    if (!song) return [];
+    const lines = lyrics[song.title];
+    return Array.isArray(lines) ? lines : [];
+  };
+
   const leftSong = useMemo(() => songs.find(s => s.id === initialSongId), [initialSongId]);
-  const leftLyrics = leftSong ? lyrics[leftSong.title] || [] : [];
+  const leftLyrics = useMemo(() => getLyricsForSong(leftSong), [leftSong]);
   const rightSong = useMemo(() => songs.find(s => s.id === rightSongId), [rightSongId]);
-  const rightLyrics = rightSong ? lyrics[rightSong.title] || [] : [];
+  const rightLyrics = useMemo(() => getLyricsForSong(rightSong), [rightSong]);
 // Event handler for clicking a lyric
   const handleLyricClick = (lyric, songId) => {
     if (songId === 1) {
@@ -136,6 +148,7 @@ const RiffOffPage = () => {
                           className="mini-song-item"
                           onClick={() => {
                             setRightSongId(s.id);
+                            setSelectedLyric2(null);
                             setIsPickerOpen(false);
                           }}
                         >
