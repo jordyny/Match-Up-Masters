@@ -27,7 +27,7 @@ const NewRiffPage = () => {
         <div className="song-list">
            {/* Map over the mock 'songs' data to create a list */}
           {songs.map((song) => (
-             <Link to="/riff" key={song.id} style={{textDecoration: 'none', color: 'inherit'}}>
+             <Link to={`/riff/${song.id}`} key={song.id} style={{textDecoration: 'none', color: 'inherit'}}>
                 <SongListItem
                     title={song.title}
                     artist={song.artist}
@@ -39,7 +39,7 @@ const NewRiffPage = () => {
       </div>
         {/* Bottom section with a "Choose Song" button (mock) */}
       <div className="bottom-section">
-        <Button to="/riff">
+        <Button to={`/riff/${songs[0].id}`}>
           Choose Song <FaPlus style={{marginLeft: '0.5rem'}} />
         </Button>
       </div>

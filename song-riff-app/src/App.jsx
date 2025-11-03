@@ -40,7 +40,7 @@ function App() {
             <Route path="/" element={<LoginPage onLogin={handleLogin} />} />
             <Route path="/home" element={<HomePage />} />
             <Route path="/new" element={<NewRiffPage />} />
-            <Route path="/riff" element={<RiffOffPage />} />
+            <Route path="/riff/:id" element={<RiffOffPage />} />
             <Route path="/how-to" element={<HowToPlayPage />} />
           </Routes>
         </div>

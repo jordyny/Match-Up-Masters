@@ -1,13 +1,15 @@
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useMemo, useState } from 'react';
+import { Link, useParams } from 'react-router-dom';
 import { motion } from 'framer-motion'; 
 import { pageVariants, pageTransition } from '../pageAnimations';
-import { lyrics } from '../mockData';
+import { songs, lyrics } from '../mockData';
+import SongListItem from '../components/SongListItem';
+import SearchBar from '../components/SearchBar';
 
 import './RiffOffPage.css';
 // --- Sub-component for displaying a single song's lyrics ---
 // 'songId' (1 or 2) and 'onLyricClick' (a function) are passed down
-const LyricColumn = ({ songTitle, artist, lyrics, songId, onLyricClick }) => (
+const LyricColumn = ({ songTitle, artist, lyrics, songId, onLyricClick, selectedLyric }) => (
   <div className="lyric-column">
     <div className="song-header">
       <h3>{songTitle}</h3>
@@ -17,8 +19,7 @@ const LyricColumn = ({ songTitle, artist, lyrics, songId, onLyricClick }) => (
       {lyrics.map((line, index) => (
         <p
           key={index}
-          className="lyric-line"
-          // Call the handler function when a lyric is clicked
+          className={`lyric-line ${selectedLyric === line ? 'selected' : ''}`}
           onClick={() => onLyricClick(line, songId)}
         >
           {line}
@@ -30,8 +31,17 @@ const LyricColumn = ({ songTitle, artist, lyrics, songId, onLyricClick }) => (
 
 // --- Main RiffOffPage Component ---
 const RiffOffPage = () => {
+  const { id } = useParams();
+  const initialSongId = Number(id);
   const [selectedLyric1, setSelectedLyric1] = useState(null);
   const [selectedLyric2, setSelectedLyric2] = useState(null);
+  const [rightSongId, setRightSongId] = useState(null);
+  const [isPickerOpen, setIsPickerOpen] = useState(false);
+
+  const leftSong = useMemo(() => songs.find(s => s.id === initialSongId), [initialSongId]);
+  const leftLyrics = leftSong ? lyrics[leftSong.title] || [] : [];
+  const rightSong = useMemo(() => songs.find(s => s.id === rightSongId), [rightSongId]);
+  const rightLyrics = rightSong ? lyrics[rightSong.title] || [] : [];
 // Event handler for clicking a lyric
   const handleLyricClick = (lyric, songId) => {
     if (songId === 1) {
@@ -65,7 +75,7 @@ const RiffOffPage = () => {
         {/* Page Header (Back arrow and Title) */}
       <div className="riff-header">
         <Link to="/new" className="back-link">←</Link>
-        <h2>Tik Tok & Die Young</h2>
+        <h2>{leftSong ? leftSong.title : 'Song'} {rightSong ? `& ${rightSong.title}` : ''}</h2>
       </div>
 {/* Chosen Lyrics Box (Translucent) */}
       <div className="chosen-lyrics-box">
@@ -84,22 +94,60 @@ const RiffOffPage = () => {
           </p>
         </div>
       </div>
-     {/* Container for the two lyric columns, note I hardcoded these for demo purposes */}
+     {/* Container for the two lyric columns */}
       <div className="riff-container">
-        <LyricColumn
-          songTitle="Tik Tok"
-          artist="Kesha"
-          lyrics={lyrics['Tik Tok']}
-          songId={1}
-          onLyricClick={handleLyricClick}
-        />
-        <LyricColumn
-          songTitle="Die Young"
-          artist="Kesha"
-          lyrics={lyrics['Die Young']}
-          songId={2}
-          onLyricClick={handleLyricClick}
-        />
+        {leftSong && (
+          <LyricColumn
+            songTitle={leftSong.title}
+            artist={leftSong.artist}
+            lyrics={leftLyrics}
+            songId={1}
+            onLyricClick={handleLyricClick}
+            selectedLyric={selectedLyric1}
+          />
+        )}
+
+        {/* Right column: either selected song or add box */}
+        {rightSong ? (
+          <LyricColumn
+            songTitle={rightSong.title}
+            artist={rightSong.artist}
+            lyrics={rightLyrics}
+            songId={2}
+            onLyricClick={handleLyricClick}
+            selectedLyric={selectedLyric2}
+          />
+        ) : (
+          <div className="lyric-column add-song-box">
+            <div className="add-song-content">
+              <button className="add-song-button" onClick={() => setIsPickerOpen(v => !v)}>+
+              </button>
+            </div>
+            {isPickerOpen && (
+              <div className="mini-search">
+                <div className="mini-search-inner">
+                  <SearchBar />
+                  <div className="mini-song-list">
+                    {songs
+                      .filter(s => s.id !== initialSongId)
+                      .map(s => (
+                        <div
+                          key={s.id}
+                          className="mini-song-item"
+                          onClick={() => {
+                            setRightSongId(s.id);
+                            setIsPickerOpen(false);
+                          }}
+                        >
+                          <SongListItem title={s.title} artist={s.artist} duration={s.duration} />
+                        </div>
+                      ))}
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
       </div>
     </div>
     </motion.div>

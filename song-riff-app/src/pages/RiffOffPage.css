@@ -144,6 +144,76 @@
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
+/* Add song placeholder box */
+.add-song-box {
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.add-song-content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  min-height: 240px;
+}
+
+.add-song-button {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.15);
+  color: #fff;
+  font-size: 2rem;
+  font-weight: 800;
+  cursor: pointer;
+  transition: transform 0.15s ease, background 0.15s ease;
+}
+
+.add-song-button:hover {
+  transform: scale(1.06);
+  background: rgba(255, 255, 255, 0.25);
+}
+
+/* Mini search popup near the + button */
+.mini-search {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  z-index: 200;
+}
+
+.mini-search-inner {
+  width: 360px;
+  max-height: 420px;
+  overflow: hidden;
+  border-radius: 12px;
+  background-color: rgba(40, 40, 40, 0.8);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+  padding: 0.75rem;
+}
+
+.mini-song-list {
+  margin-top: 0.5rem;
+  max-height: 320px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.mini-song-item {
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
+}
+
 /* ---   SONG HEADER STYLES --- */
 .song-header {
     text-align: left;
@@ -199,4 +269,11 @@
     transform: scale(1.5);
     font-weight: 900;
     color: #ffffff;
+}
+
+/* Selected lyric state */
+.lyric-line.selected {
+  background-color: rgba(255, 255, 255, 0.08);
+  border-left: 3px solid #1DB954;
+  padding-left: 0.5rem;
 }
