@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { FaUserCircle, FaHome } from 'react-icons/fa';
+import { FaUserCircle, FaHome, FaInfoCircle } from 'react-icons/fa';
 import './Header.css';
 
 const Header = ({ userEmail, onLogout }) => {
@@ -32,6 +32,11 @@ const Header = ({ userEmail, onLogout }) => {
       {/* Home Icon */}
       <Link to="/home">
           <FaHome className="header-icon" />
+      </Link>
+
+      {/* How to Play Icon */}
+      <Link to="/how-to">
+          <FaInfoCircle className="header-icon" />
       </Link>
 
     </div>

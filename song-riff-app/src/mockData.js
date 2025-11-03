@@ -1,9 +1,10 @@
 export const songs = [
+  { id: 5, title: "Tik Tok", artist: "Kesha", duration: "3:19" },
+  { id: 4, title: "Die Young", artist: "Kesha", duration: "3:31" },
   { id: 1, title: "Your Love Is My Drug", artist: "Kesha", duration: "3:07" },
   { id: 2, title: "We R Who We R", artist: "Kesha", duration: "3:24" },
-  { id: 3, title: "ATTENTION!", artist: "Kesha, Slayyyter, Rose Gray", duration: "3:28" },
-  { id: 4, title: "Die Young", artist: "Kesha", duration: "3:31" },
-  { id: 5, title: "Tik Tok", artist: "Kesha", duration: "3:19" }
+  { id: 3, title: "ATTENTION!", artist: "Kesha, Slayyyter, Rose Gray", duration: "3:28" }
+  
 ];
 
 export const lyrics = {

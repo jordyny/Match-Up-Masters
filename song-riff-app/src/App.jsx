@@ -6,6 +6,7 @@ import LoginPage from './pages/LoginPage';
 import HomePage from './pages/HomePage';
 import NewRiffPage from './pages/NewRiffPage';
 import RiffOffPage from './pages/RiffOffPage';
+import HowToPlayPage from './pages/HowToPlayPage';
 
 function App() {
   //'user email' holds the logged in users email, null means they logged out
@@ -40,6 +41,7 @@ function App() {
             <Route path="/home" element={<HomePage />} />
             <Route path="/new" element={<NewRiffPage />} />
             <Route path="/riff" element={<RiffOffPage />} />
+            <Route path="/how-to" element={<HowToPlayPage />} />
           </Routes>
         </div>
       </AnimatePresence>
