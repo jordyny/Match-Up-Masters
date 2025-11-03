@@ -7,7 +7,7 @@ export const songs = [
   
 ];
 
-export const lyrics = {
+export const lyrics =  {
   "Tik Tok": [
     "Wake up in the morning feeling like P Diddy",
     "(Hey, what up girl?)",
