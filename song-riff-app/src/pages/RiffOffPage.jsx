@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { motion } from 'framer-motion'; 
+import { motion, AnimatePresence } from 'framer-motion'; 
 import { pageVariants, pageTransition } from '../pageAnimations';
 import { songs, lyrics } from '../mockData';
 import SongListItem from '../components/SongListItem';
@@ -141,36 +141,45 @@ const RiffOffPage = () => {
         <Link to="/new" className="back-link">←</Link>
         <h2>{leftSong ? leftSong.title : 'Song'} {rightSong ? `& ${rightSong.title}` : ''}</h2>
       </div>
-{/* Chosen Lyrics Box (Translucent) */}
-      <div className="chosen-lyrics-box">
-        <div className="chosen-header">
-          <h3>Chosen Lyrics</h3>
-          {similarity != null && (
-            <div className={`similarity-badge ${similarityColor}`} title="Similarity">
-              <span>{similarity}% word similarity</span>
-            </div>
+{/* Chosen Lyrics + Next Round (row) */}
+      <div className="chosen-lyrics-row">
+        <div className="chosen-lyrics-box">
+          <div className="chosen-header">
+            <h3>Chosen Lyrics</h3>
+            {similarity != null && (
+              <div className={`similarity-badge ${similarityColor}`} title="Similarity">
+                <span>{similarity}% word similarity</span>
+              </div>
+            )}
+            <button onClick={clearSelection} className="clear-button">
+              Clear
+            </button>
+          </div>
+          <div className="chosen-lyrics-content">
+            <p className="chosen-lyric">
+              {selectedLyric1 || 'Select a lyric from song 1...'}
+            </p>
+            <p className="chosen-lyric">
+              {selectedLyric2 || 'Select a lyric from song 2...'}
+            </p>
+          </div>
+        </div>
+        <AnimatePresence>
+          {selectedLyric1 && selectedLyric2 && (
+            <motion.button
+              key="next-round"
+              className="next-round-button"
+              onClick={handleNextRound}
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 8 }}
+              transition={{ duration: 0.2 }}
+            >
+              Next Round →
+            </motion.button>
           )}
-          <button onClick={clearSelection} className="clear-button">
-            Clear
-          </button>
-        </div>
-        <div className="chosen-lyrics-content">
-          <p className="chosen-lyric">
-            {selectedLyric1 || 'Select a lyric from song 1...'}
-          </p>
-          <p className="chosen-lyric">
-            {selectedLyric2 || 'Select a lyric from song 2...'}
-          </p>
-        </div>
+        </AnimatePresence>
       </div>
-
-      {selectedLyric1 && selectedLyric2 && (
-        <div className="next-round-container">
-          <button className="next-round-button" onClick={handleNextRound}>
-            Next Round →
-          </button>
-        </div>
-      )}
      {/* Container for the two lyric columns */}
       <div className={`riff-container ${isAdvancing ? 'advancing' : ''}`}>
         {leftSong && (
