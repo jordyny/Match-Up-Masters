@@ -98,6 +98,42 @@
   background: rgba(255, 255, 255, 0.25);
 }
 
+/* Similarity badge */
+.similarity-badge {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  margin-right: auto;
+  margin-left: 1rem;
+  color: #111;
+}
+
+.similarity-badge span {
+  color: #111;
+}
+
+.similarity-badge.neutral {
+  background: rgba(255, 255, 255, 0.2);
+  color: #fff;
+}
+
+.similarity-badge.red {
+  background: #ef4444;
+}
+.similarity-badge.orange {
+  background: #f59e0b;
+}
+.similarity-badge.yellow {
+  background: #facc15;
+}
+.similarity-badge.green {
+  background: #22c55e;
+}
+
 .chosen-lyrics-content {
   display: flex;
   flex-direction: column;

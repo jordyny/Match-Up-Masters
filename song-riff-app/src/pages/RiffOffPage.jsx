@@ -54,6 +54,36 @@ const RiffOffPage = () => {
   const leftLyrics = useMemo(() => getLyricsForSong(leftSong), [leftSong]);
   const rightSong = useMemo(() => songs.find(s => s.id === rightSongId), [rightSongId]);
   const rightLyrics = useMemo(() => getLyricsForSong(rightSong), [rightSong]);
+
+  const getSimilarityPercentage = (a, b) => {
+    const tokenize = (text) => {
+      if (!text) return [];
+      return (text.match(/[A-Za-z0-9']+/g) || []).map(w => w.toLowerCase());
+    };
+    const w1 = new Set(tokenize(a));
+    const w2 = new Set(tokenize(b));
+    if (w1.size === 0 && w2.size === 0) return 100;
+    if (w1.size === 0 || w2.size === 0) return 0;
+    let common = 0;
+    for (const word of w1) {
+      if (w2.has(word)) common += 1;
+    }
+    const denom = Math.max(w1.size, w2.size);
+    return Math.round((common / denom) * 100);
+  };
+
+  const similarity = (selectedLyric1 && selectedLyric2)
+    ? getSimilarityPercentage(selectedLyric1, selectedLyric2)
+    : null;
+  const similarityColor = similarity == null
+    ? 'neutral'
+    : similarity <= 25
+      ? 'red'
+      : similarity <= 50
+        ? 'orange'
+        : similarity <= 75
+          ? 'yellow'
+          : 'green';
 // Event handler for clicking a lyric
   const handleLyricClick = (lyric, songId) => {
     if (songId === 1) {
@@ -93,6 +123,11 @@ const RiffOffPage = () => {
       <div className="chosen-lyrics-box">
         <div className="chosen-header">
           <h3>Chosen Lyrics</h3>
+          {similarity != null && (
+            <div className={`similarity-badge ${similarityColor}`} title="Similarity">
+              <span>{similarity}%</span>
+            </div>
+          )}
           <button onClick={clearSelection} className="clear-button">
             Clear
           </button>
