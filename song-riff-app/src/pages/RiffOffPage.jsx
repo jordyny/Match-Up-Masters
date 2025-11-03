@@ -125,7 +125,7 @@ const RiffOffPage = () => {
           <h3>Chosen Lyrics</h3>
           {similarity != null && (
             <div className={`similarity-badge ${similarityColor}`} title="Similarity">
-              <span>{similarity}%</span>
+              <span>{similarity}% word similarity</span>
             </div>
           )}
           <button onClick={clearSelection} className="clear-button">

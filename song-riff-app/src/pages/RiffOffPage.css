@@ -100,20 +100,22 @@
 
 /* Similarity badge */
 .similarity-badge {
-  width: 56px;
-  height: 56px;
-  border-radius: 50%;
-  display: flex;
+  height: 40px;
+  padding: 0 14px;
+  border-radius: 9999px; /* pill */
+  display: inline-flex;
   align-items: center;
   justify-content: center;
   font-weight: 800;
-  margin-right: auto;
-  margin-left: 1rem;
-  color: #111;
+  margin-left: auto; /* push towards the right within header */
+  margin-right: 0.5rem;
+  color: #fff;
 }
 
 .similarity-badge span {
-  color: #111;
+  color: #fff;
+  font-size: 0.9rem;
+  white-space: nowrap;
 }
 
 .similarity-badge.neutral {
