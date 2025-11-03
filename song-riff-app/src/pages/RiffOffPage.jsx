@@ -139,10 +139,10 @@ const RiffOffPage = () => {
   }, [selectedLyric2, addedDotThisRound]);
 
   const ProgressTrail = ({ count = 1, score = 0 }) => {
-    const height = 26;
+    const height = 50;
     const padding = 12;
-    const r = 4;
-    const step = 28; // fixed distance between dots
+    const r = 8;
+    const step = 50; // fixed distance between dots
     const minWidth = 320; // restore original visual footprint
     const width = Math.max(minWidth, padding * 2 + (count - 1) * step, padding * 2 + r * 2);
     const points = Array.from({ length: count }, (_, i) => ({
@@ -220,6 +220,7 @@ const RiffOffPage = () => {
             <p className="chosen-lyric">
               {selectedLyric2 || 'Select a lyric from song 2...'}
             </p>
+            
           </div>
         </div>
         <AnimatePresence>
@@ -232,6 +233,7 @@ const RiffOffPage = () => {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 8 }}
               transition={{ duration: 0.2 }}
+              style = {{whiteSpace:'nowrap'}}
             >
               Next Round →
             </motion.button>

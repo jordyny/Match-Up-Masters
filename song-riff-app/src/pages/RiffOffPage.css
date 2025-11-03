@@ -22,13 +22,17 @@
 
 .trail-dot {
   fill: #ffffff;
+  /* Slight glow effect on the progress trail bar*/
+  filter: drop-shadow(0 0 4px rgba(255,255,255,0.7));
 }
 
 .trail-line {
   stroke: #ffffff;
-  stroke-width: 2;
+  stroke-width: 4;
   stroke-dasharray: 6 6;
   animation: dash-move 1.2s linear infinite;
+  filter: drop-shadow(0 0 4px rgba(255,255,255,0.7));
+
 }
 
 /* Score pill to the right of the trail */
@@ -135,7 +139,7 @@
   color: #ffffff;
   border: 1px solid rgba(255, 255, 255, 0.2);
   padding: 0.6rem 1rem;
-  border-radius: 9999px;
+  border-radius: 6px;
   font-weight: 700;
   cursor: pointer;
   transition: transform 0.15s ease, background-color 0.2s ease;
@@ -176,9 +180,9 @@
 
 /* Similarity badge */
 .similarity-badge {
-  height: 40px;
+  height: 36px;
   padding: 0 14px;
-  border-radius: 9999px; /* pill */
+  border-radius: 5px; /* rounded to "clear" button radius*/
   display: inline-flex;
   align-items: center;
   justify-content: center;
