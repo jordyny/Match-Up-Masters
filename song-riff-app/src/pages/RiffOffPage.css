@@ -417,7 +417,12 @@
 
 /* Selected lyric state */
 .lyric-line.selected {
-  background-color: rgba(255, 255, 255, 0.08);
-  border-left: 3px solid #1DB954;
+  /* Highlights the selected lyric with transparent box, removed this to add glow effect */
+  /*background-color: rgba(255, 255, 255, 0.08);*/
+  
+  border-left: 5px solid #1DB954;
   padding-left: 0.5rem;
+  font-weight: 900;
+  font-size: larger;
+  filter: drop-shadow(0 0 4px rgba(255, 255, 255, 0.7));
 }
