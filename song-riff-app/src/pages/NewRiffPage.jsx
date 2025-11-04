@@ -11,18 +11,19 @@ import { FaPlus } from 'react-icons/fa';
 import './NewRiffPage.css';
 
 const NewRiffPage = () => {
-const [testQuery, setTestQuery] = useState('');
-const [lyrics, setLyrics] = useState('');
-const [loading, setLoading] = useState(false);
-const [error, setError] = useState('');
+const [testQuery, setTestQuery] = useState(''); //stores what user types into song title box 
+const [lyrics, setLyrics] = useState(''); //stores lyrics returned from API
+const [loading, setLoading] = useState(false); //sets state of loading when getting lyrics 
+const [error, setError] = useState(''); //set error state to display message if anything fails 
 
+//when user clicks the Get Lyrics button triggers this function
 const handleLyricsTest = async () => {
   setLoading(true);
   setError('');
   setLyrics('');
 
   try {
-    const res = await fetch(`http://localhost:5050/lyrics?q=${encodeURIComponent(testQuery)}`);
+    const res = await fetch(`http://localhost:5050/lyrics?q=${encodeURIComponent(testQuery)}`); //sends request to backend and saves state 
     if (!res.ok) {
       const body = await res.json().catch(() => ({}));
       throw new Error(body.error || `Request failed with ${res.status}`);
@@ -75,7 +76,7 @@ const handleLyricsTest = async () => {
           </Button>
         </div>
 
-        {/* 🎤 Temporary Genius Lyrics API Test Section */}
+        {/* Temporary Genius Lyrics API Test Section */}
         <div
           style={{
             marginTop: '2rem',
@@ -84,6 +85,7 @@ const handleLyricsTest = async () => {
           }}
         >
           <h3>Test Genius Lyrics API</h3>
+          {/* Input + button */}
           <div style={{ display: 'flex', gap: '0.5rem' }}>
             <input
               type="text"
@@ -107,11 +109,12 @@ const handleLyricsTest = async () => {
               {loading ? 'Fetching…' : 'Get Lyrics'}
             </button>
           </div>
-
+          {/* Error message */}
           {error && (
             <p style={{ color: 'tomato', marginTop: '0.5rem' }}>{error}</p>
           )}
 
+          {/* Lyrics display */}
           {lyrics && (
             <pre
               style={{
