@@ -3,12 +3,14 @@ const cheerio = require('cheerio');
 const GENIUS_API_KEY = process.env.GENIUS_API_KEY;
 
 async function searchSong(query) {
+
+  //goes to base url and submits get request with query/API key 
   const url = 'https://api.genius.com/search';
   const response = await axios.get(url, {
     headers: { Authorization: `Bearer ${GENIUS_API_KEY}` },
     params: { q: query },
   });
-
+  //gets number of matches from the search 
   const hits = response.data.response.hits;
 
   if (hits.length === 0) {
