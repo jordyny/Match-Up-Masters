@@ -3,6 +3,8 @@ import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion'; 
 import { pageVariants, pageTransition } from '../pageAnimations';
 import { lyrics } from '../mockData';
+import Scoreboard from '../components/Scoreboard';
+
 
 import './RiffOffPage.css';
 // --- Sub-component for displaying a single song's lyrics ---
@@ -55,6 +57,8 @@ const RiffOffPage = () => {
       variants={pageVariants}
       transition={pageTransition}
     >
+
+      <Scoreboard score={0} />
     <div className="page-content riff-off-page">
 
       {/* --- for future add save button --- */}
