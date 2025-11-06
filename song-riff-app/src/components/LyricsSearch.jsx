@@ -1,4 +1,14 @@
+/**
+ * Lyrics Search Component
+ * 
+ * Standalone component for searching and displaying song lyrics.
+ * Uses service layer for API communication.
+ * 
+ * @component
+ */
+
 import { useState } from 'react';
+import { searchAndFetchLyrics } from '../services/apiService';
 
 function LyricsSearch() {
   const [query, setQuery] = useState('');
@@ -6,18 +16,18 @@ function LyricsSearch() {
   const [loading, setLoading] = useState(false);
   const [err, setErr] = useState('');
 
+  /**
+   * Handle search button click
+   * Fetches lyrics for the searched song using service layer
+   */
   const handleSearch = async () => {
     setLoading(true);
     setErr('');
     setLyrics('');
 
     try {
-      const res = await fetch(`http://localhost:5050/lyrics?q=${encodeURIComponent(query)}`);
-      if (!res.ok) {
-        const body = await res.json().catch(() => ({}));
-        throw new Error(body.error || `Request failed with status ${res.status}`);
-      }
-      const data = await res.json();
+      // Use service layer for API call
+      const data = await searchAndFetchLyrics(query);
       setLyrics(data.lyrics || '(No lyrics found)');
     } catch (e) {
       setErr(e.message);

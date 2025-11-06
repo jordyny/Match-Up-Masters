@@ -1,19 +1,34 @@
+/**
+ * New Riff Page Component
+ * 
+ * Allows users to search for songs and select one to start a riff-off game.
+ * Uses service layer for API calls and business logic.
+ * 
+ * @component
+ */
 
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { pageVariants, pageTransition } from '../pageAnimations';
 import SongListItem from '../components/SongListItem';
+import { searchForSongs, fetchSongWithLyrics } from '../services/lyricsService';
 import './NewRiffPage.css';
 
 const NewRiffPage = ({ songsWithLyrics, setSongsWithLyrics }) => {
+  // Component state
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const navigate = useNavigate();
 
-  // Search for songs using Genius API
+  /**
+   * Handle song search form submission
+   * Searches for songs using the lyrics service
+   * 
+   * @param {Event} e - Form submit event
+   */
   const handleSearch = async (e) => {
     e.preventDefault();
     if (!searchQuery.trim()) return;
@@ -22,12 +37,8 @@ const NewRiffPage = ({ songsWithLyrics, setSongsWithLyrics }) => {
     setError('');
 
     try {
-      const res = await fetch(`http://localhost:5050/lyrics/search?q=${encodeURIComponent(searchQuery)}`);
-      if (!res.ok) {
-        throw new Error('Failed to search songs');
-      }
-      const data = await res.json();
-      setSearchResults(data.songs || []);
+      const songs = await searchForSongs(searchQuery);
+      setSearchResults(songs);
     } catch (err) {
       setError(err.message);
       setSearchResults([]);
@@ -36,9 +47,14 @@ const NewRiffPage = ({ songsWithLyrics, setSongsWithLyrics }) => {
     }
   };
 
-  // Fetch lyrics for a selected song and navigate to riff page
+  /**
+   * Handle song selection from search results
+   * Fetches lyrics if not already cached, then navigates to riff page
+   * 
+   * @param {Object} song - Selected song object
+   */
   const handleSongSelect = async (song) => {
-    // Check if we already have lyrics for this song
+    // Check if we already have lyrics for this song (avoid redundant API calls)
     if (songsWithLyrics[song.id]) {
       navigate(`/riff/${song.id}`);
       return;
@@ -48,25 +64,16 @@ const NewRiffPage = ({ songsWithLyrics, setSongsWithLyrics }) => {
     setError('');
 
     try {
-      const res = await fetch(`http://localhost:5050/lyrics/fetch?url=${encodeURIComponent(song.url)}`);
-      if (!res.ok) {
-        throw new Error('Failed to fetch lyrics');
-      }
-      const data = await res.json();
+      // Fetch and parse lyrics using service layer
+      const songWithLyrics = await fetchSongWithLyrics(song);
       
-      // Split lyrics into lines for the game
-      const lyricsLines = data.lyrics.split('\n').filter(line => line.trim());
-      
-      // Store song with lyrics
+      // Store song with lyrics in app state
       setSongsWithLyrics(prev => ({
         ...prev,
-        [song.id]: {
-          ...song,
-          lyrics: lyricsLines
-        }
+        [song.id]: songWithLyrics
       }));
 
-      // Navigate to riff page
+      // Navigate to riff page with this song
       navigate(`/riff/${song.id}`);
     } catch (err) {
       setError(`Failed to load lyrics: ${err.message}`);
