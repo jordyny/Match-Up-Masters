@@ -427,3 +427,56 @@
   font-size: larger;
   filter: drop-shadow(0 0 4px rgba(255, 255, 255, 0.7));
 }
+
+.timer-overlay {
+  position: fixed;
+  top: 80px;
+  right: 40px;
+  background: rgba(0, 0, 0, 0.75);
+  color: white;
+  font-size: 1.1rem;
+  padding: 10px 14px;
+  border-radius: 8px;
+  z-index: 900;
+}
+
+.lyric-line.disabled {
+  pointer-events: none;
+  opacity: 0.4;
+}
+
+.timesup-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.75);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.timesup-box {
+  background: rgb(0, 0, 0);
+  padding: 40px 60px;
+  border-radius: 16px;
+  text-align: center;
+}
+
+.timesup-box h2 {
+  margin-bottom: 15px;
+}
+
+.restart-btn {
+  display: inline-block;
+  margin-top: 15px;
+  padding: 10px 20px;
+  background-color: #0077ff;
+  color: white;
+  border-radius: 8px;
+  text-decoration: none;
+  transition: 0.2s;
+}
+
+.restart-btn:hover {
+  background-color: #005cd1;
+}
