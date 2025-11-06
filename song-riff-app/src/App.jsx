@@ -11,6 +11,8 @@ import HowToPlayPage from './pages/HowToPlayPage';
 function App() {
   //'user email' holds the logged in users email, null means they logged out
   const [userEmail, setUserEmail] = useState(null);
+  // Store songs with their fetched lyrics
+  const [songsWithLyrics, setSongsWithLyrics] = useState({});
   const navigate = useNavigate();
   const location = useLocation(); 
 
@@ -39,8 +41,8 @@ function App() {
           <Routes location={location}> {/* Pass location to Routes */}
             <Route path="/" element={<LoginPage onLogin={handleLogin} />} />
             <Route path="/home" element={<HomePage />} />
-            <Route path="/new" element={<NewRiffPage />} />
-            <Route path="/riff/:id" element={<RiffOffPage />} />
+            <Route path="/new" element={<NewRiffPage songsWithLyrics={songsWithLyrics} setSongsWithLyrics={setSongsWithLyrics} />} />
+            <Route path="/riff/:id" element={<RiffOffPage songsWithLyrics={songsWithLyrics} setSongsWithLyrics={setSongsWithLyrics} />} />
             <Route path="/how-to" element={<HowToPlayPage />} />
           </Routes>
         </div>

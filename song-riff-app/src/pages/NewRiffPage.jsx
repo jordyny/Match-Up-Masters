@@ -1,44 +1,81 @@
 
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { pageVariants, pageTransition } from '../pageAnimations';
-import SearchBar from '../components/SearchBar';
 import SongListItem from '../components/SongListItem';
-import Button from '../components/Button';
-import { songs } from '../mockData';
-import { FaPlus } from 'react-icons/fa';
 import './NewRiffPage.css';
 
-const NewRiffPage = () => {
-const [testQuery, setTestQuery] = useState(''); //stores what user types into song title box 
-const [lyrics, setLyrics] = useState(''); //stores lyrics returned from API
-const [loading, setLoading] = useState(false); //sets state of loading when getting lyrics 
-const [error, setError] = useState(''); //set error state to display message if anything fails 
+const NewRiffPage = ({ songsWithLyrics, setSongsWithLyrics }) => {
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const navigate = useNavigate();
 
-//when user clicks the Get Lyrics button triggers this function
-const handleLyricsTest = async () => {
-  setLoading(true);
-  setError('');
-  setLyrics('');
+  // Search for songs using Genius API
+  const handleSearch = async (e) => {
+    e.preventDefault();
+    if (!searchQuery.trim()) return;
 
-  try {
-    const res = await fetch(`http://localhost:5050/lyrics?q=${encodeURIComponent(testQuery)}`); //sends request to backend and saves state 
-    if (!res.ok) {
-      const body = await res.json().catch(() => ({}));
-      throw new Error(body.error || `Request failed with ${res.status}`);
+    setLoading(true);
+    setError('');
+
+    try {
+      const res = await fetch(`http://localhost:5050/lyrics/search?q=${encodeURIComponent(searchQuery)}`);
+      if (!res.ok) {
+        throw new Error('Failed to search songs');
+      }
+      const data = await res.json();
+      setSearchResults(data.songs || []);
+    } catch (err) {
+      setError(err.message);
+      setSearchResults([]);
+    } finally {
+      setLoading(false);
     }
-    const data = await res.json();
-    setLyrics(data.lyrics || '(No lyrics found)');
-  } catch (err) {
-    setError(err.message);
-  } finally {
-    setLoading(false);
-  }
-};
+  };
 
-   return (
-    // for animations
+  // Fetch lyrics for a selected song and navigate to riff page
+  const handleSongSelect = async (song) => {
+    // Check if we already have lyrics for this song
+    if (songsWithLyrics[song.id]) {
+      navigate(`/riff/${song.id}`);
+      return;
+    }
+
+    setLoading(true);
+    setError('');
+
+    try {
+      const res = await fetch(`http://localhost:5050/lyrics/fetch?url=${encodeURIComponent(song.url)}`);
+      if (!res.ok) {
+        throw new Error('Failed to fetch lyrics');
+      }
+      const data = await res.json();
+      
+      // Split lyrics into lines for the game
+      const lyricsLines = data.lyrics.split('\n').filter(line => line.trim());
+      
+      // Store song with lyrics
+      setSongsWithLyrics(prev => ({
+        ...prev,
+        [song.id]: {
+          ...song,
+          lyrics: lyricsLines
+        }
+      }));
+
+      // Navigate to riff page
+      navigate(`/riff/${song.id}`);
+    } catch (err) {
+      setError(`Failed to load lyrics: ${err.message}`);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
     <motion.div
       className="page-container" 
       initial="initial"
@@ -47,96 +84,81 @@ const handleLyricsTest = async () => {
       variants={pageVariants}
       transition={pageTransition}
     >
-    <div className="page-content new-riff-page">
-      <div className="top-section">
-        <SearchBar />
-        <h2 className="section-title">Songs</h2>
-        <div className="song-list">
-           {/* Map over the mock 'songs' data to create a list */}
-          {songs.map((song) => (
-             <Link to={`/riff/${song.id}`} key={song.id} style={{textDecoration: 'none', color: 'inherit'}}>
-                <SongListItem
-                    title={song.title}
-                    artist={song.artist}
-                    duration={song.duration}
-                />
-              </Link>
-            ))}
-          </div>
-        </div>
+      <div className="page-content new-riff-page">
+        <div className="top-section">
+          {/* Search Form */}
+          <form onSubmit={handleSearch} style={{ marginBottom: '1.5rem' }}>
+            <div style={{ display: 'flex', gap: '0.5rem' }}>
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search for a song (e.g., Hello Adele)"
+                style={{
+                  flex: 1,
+                  padding: '0.75rem',
+                  fontSize: '1rem',
+                  backgroundColor: '#1a1a1a',
+                  color: 'white',
+                  border: '1px solid #444',
+                  borderRadius: '8px',
+                }}
+              />
+              <button
+                type="submit"
+                disabled={!searchQuery.trim() || loading}
+                style={{
+                  padding: '0.75rem 1.5rem',
+                  fontSize: '1rem',
+                  backgroundColor: loading ? '#333' : '#6200ea',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '8px',
+                  cursor: loading ? 'not-allowed' : 'pointer',
+                  fontWeight: 'bold',
+                }}
+              >
+                {loading ? 'Searching...' : 'Search'}
+              </button>
+            </div>
+          </form>
 
-        {/* Bottom section with a "Choose Song" button (mock) */}
-        <div className="bottom-section">
-          <Button to="/riff">
-            Choose Song <FaPlus style={{ marginLeft: '0.5rem' }} />
-          </Button>
-        </div>
-
-        {/* Temporary Genius Lyrics API Test Section */}
-        <div
-          style={{
-            marginTop: '2rem',
-            borderTop: '1px solid #444',
-            paddingTop: '1rem',
-          }}
-        >
-          <h3>Test Genius Lyrics API</h3>
-          {/* Input + button */}
-          <div style={{ display: 'flex', gap: '0.5rem' }}>
-            <input
-              type="text"
-              value={testQuery}
-              onChange={(e) => setTestQuery(e.target.value)}
-              placeholder="Type a song title (Hello Adele)"
-              style={{ flex: 1, padding: '0.5rem' }}
-            />
-            <button
-              onClick={handleLyricsTest}
-              disabled={!testQuery || loading}
-              style={{
-                padding: '0.5rem 1rem',
-                backgroundColor: '#222',
-                color: 'white',
-                border: '1px solid #555',
-                borderRadius: '4px',
-                cursor: loading ? 'not-allowed' : 'pointer',
-              }}
-            >
-              {loading ? 'Fetching…' : 'Get Lyrics'}
-            </button>
-          </div>
           {/* Error message */}
           {error && (
-            <p style={{ color: 'tomato', marginTop: '0.5rem' }}>{error}</p>
+            <p style={{ color: 'tomato', marginBottom: '1rem' }}>{error}</p>
           )}
 
-          {/* Lyrics display */}
-          {lyrics && (
-            <pre
-              style={{
-                whiteSpace: 'pre-wrap',
-                marginTop: '1rem',
-                padding: '1rem',
-                border: '1px solid #333',
-                borderRadius: '8px',
-                maxHeight: '200px',
-                overflowY: 'auto',
-                backgroundColor: '#111',
-                color: '#eee',
-              }}
-            >
-              {lyrics}
-            </pre>
-          )}
+          {/* Search Results */}
+          <h2 className="section-title">
+            {searchResults.length > 0 ? 'Search Results' : 'Search for a song to start'}
+          </h2>
+          
+          <div className="song-list">
+            {searchResults.length > 0 ? (
+              searchResults.map((song) => (
+                <div
+                  key={song.id}
+                  onClick={() => handleSongSelect(song)}
+                  style={{
+                    cursor: loading ? 'wait' : 'pointer',
+                    opacity: loading ? 0.6 : 1,
+                  }}
+                >
+                  <SongListItem
+                    title={song.title}
+                    artist={song.artist}
+                    duration=""
+                  />
+                </div>
+              ))
+            ) : (
+              <p style={{ textAlign: 'center', color: '#888', padding: '2rem' }}>
+                {searchQuery ? 'No results found. Try a different search.' : 'Enter a song name above to search.'}
+              </p>
+            )}
+          </div>
         </div>
       </div>
-        {/* Bottom section with a "Choose Song" button (mock) */}
-      <div className="bottom-section">
-        <Button to={`/riff/${songs[0].id}`}>
-          Choose Song <FaPlus style={{marginLeft: '0.5rem'}} />
-        </Button>
-      </div>
-   
     </motion.div>
   );
 };

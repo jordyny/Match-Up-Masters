@@ -1,6 +1,6 @@
 const axios = require('axios');
 const cheerio = require('cheerio');
-const GENIUS_API_KEY = process.env.GENIUS_API_KEY;
+const GENIUS_API_KEY = "O3dHSiLrkubAAdYTm-o_qc5lTK33qQ7jM6YmZNPAlTbsmHZ6jrGiIlP6tMgFfmRx";
 
 async function searchSong(query) {
 
@@ -28,6 +28,33 @@ async function searchSong(query) {
   };
 }
 
+// New function to return multiple search results
+async function searchSongs(query, limit = 10) {
+  const url = 'https://api.genius.com/search';
+  const response = await axios.get(url, {
+    headers: { Authorization: `Bearer ${GENIUS_API_KEY}` },
+    params: { q: query },
+  });
+  
+  const hits = response.data.response.hits;
+  
+  if (hits.length === 0) {
+    return [];
+  }
+
+  // Return array of songs with relevant info
+  return hits.slice(0, limit).map(hit => {
+    const song = hit.result;
+    return {
+      id: song.id,
+      title: song.title,
+      artist: song.primary_artist.name,
+      fullTitle: song.full_title,
+      url: song.url,
+    };
+  });
+}
+
 // function to get lyrics from song URL, needs to use cheerio package to parse HTML 
 // selector grabs each div that contains lyrics on the page, each loops through them one ny one 
 async function getLyricsFromUrl(songUrl) {
@@ -40,4 +67,4 @@ async function getLyricsFromUrl(songUrl) {
   return lyrics.trim();
 }
 
-module.exports = { searchSong, getLyricsFromUrl };
+module.exports = { searchSong, searchSongs, getLyricsFromUrl };
