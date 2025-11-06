@@ -7,6 +7,7 @@ import HomePage from './pages/HomePage';
 import NewRiffPage from './pages/NewRiffPage';
 import RiffOffPage from './pages/RiffOffPage';
 import HowToPlayPage from './pages/HowToPlayPage';
+import TimerSelectPage from './pages/TimerSelectPage';
 
 function App() {
   //'user email' holds the logged in users email, null means they logged out
@@ -36,13 +37,14 @@ function App() {
       {/* Wrap the content in AnimatePresence */}
       <AnimatePresence mode="wait">
         <div className="main-content" key={location.pathname}> {}
-          <Routes location={location}> {/* Pass location to Routes */}
-            <Route path="/" element={<LoginPage onLogin={handleLogin} />} />
-            <Route path="/home" element={<HomePage />} />
-            <Route path="/new" element={<NewRiffPage />} />
-            <Route path="/riff/:id" element={<RiffOffPage />} />
-            <Route path="/how-to" element={<HowToPlayPage />} />
-          </Routes>
+          <Routes location={location}>
+          <Route path="/" element={<LoginPage onLogin={handleLogin} />} />
+          <Route path="/home" element={<HomePage />} />
+          <Route path="/new" element={<NewRiffPage />} />
+          <Route path="/timer" element={<TimerSelectPage />} /> {/* <-- NEW */}
+          <Route path="/riff/:id" element={<RiffOffPage />} />
+          <Route path="/how-to" element={<HowToPlayPage />} />
+</Routes>
         </div>
       </AnimatePresence>
 
