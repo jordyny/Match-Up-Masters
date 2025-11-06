@@ -60,11 +60,31 @@ async function searchSongs(query, limit = 10) {
 async function getLyricsFromUrl(songUrl) {
   const { data: html } = await axios.get(songUrl);
   const $ = cheerio.load(html);
+  
+  // Get lyrics and preserve line breaks by replacing <br> with newlines
   let lyrics = '';
   $('[data-lyrics-container="true"]').each((i, el) => {
+    // Replace <br> tags with newlines before getting text
+    $(el).find('br').replaceWith('\n');
     lyrics += $(el).text() + '\n';
   });
-  return lyrics.trim();
+  
+  // Clean up the lyrics - remove section headers and extra whitespace
+  const lines = lyrics.split('\n')
+    .map(line => line.trim())
+    .filter(line => {
+      // Remove empty lines
+      if (!line) return false;
+      // Remove section headers like [Chorus], [Verse 1], [Bridge], etc.
+      if (/^\[.*\]$/.test(line)) return false;
+      // Remove lines that are just numbers (sometimes used for annotations)
+      if (/^\d+$/.test(line)) return false;
+      // Remove lines with just special characters or brackets
+      if (/^[\[\]\(\)\{\}]+$/.test(line)) return false;
+      return true;
+    });
+  
+  return lines.join('\n');
 }
 
 module.exports = { searchSong, searchSongs, getLyricsFromUrl };
