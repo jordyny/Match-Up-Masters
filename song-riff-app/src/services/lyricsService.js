@@ -49,18 +49,22 @@ export async function searchForSongs(query) {
 }
 
 /**
- * Fetch and prepare a song with its lyrics
+ * Fetch and prepare a song with its lyrics and Spotify data
  * 
  * @param {Object} song - Song object with at least {id, title, artist, url}
- * @returns {Promise<Object>} - Complete song object with lyrics array
+ * @returns {Promise<Object>} - Complete song object with lyrics array and spotify data
  */
 export async function fetchSongWithLyrics(song) {
   if (!song || !song.url) {
     throw new Error('Invalid song object - missing URL');
   }
   
-  const lyricsText = await apiFetchLyrics(song.url);
-  return createSongWithLyrics(song, lyricsText);
+  const result = await apiFetchLyrics(song.url, song.title, song.artist);
+  
+  return {
+    ...createSongWithLyrics(song, result.lyrics),
+    spotify: result.spotify
+  };
 }
 
 /**
