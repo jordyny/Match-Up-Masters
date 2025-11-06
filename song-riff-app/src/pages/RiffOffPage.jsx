@@ -1,14 +1,37 @@
+/**
+ * Riff Off Page Component
+ * 
+ * Main game interface where users compare lyrics between two songs.
+ * Follows Single Responsibility Principle by delegating business logic to services.
+ * 
+ * @component
+ */
+
 import React, { useEffect, useMemo, useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useParams, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion'; 
 import { pageVariants, pageTransition } from '../pageAnimations';
-import { songs, lyrics } from '../mockData';
 import SongListItem from '../components/SongListItem';
-import SearchBar from '../components/SearchBar';
+import { 
+  calculateLyricSimilarity, 
+  getSimilarityColor, 
+  fetchSongWithLyrics 
+} from '../services/lyricsService';
 
 import './RiffOffPage.css';
-// --- Sub-component for displaying a single song's lyrics ---
-// 'songId' (1 or 2) and 'onLyricClick' (a function) are passed down
+
+/**
+ * LyricColumn Component
+ * 
+ * Displays a single song's lyrics with clickable lines
+ * 
+ * @param {string} songTitle - Title of the song
+ * @param {string} artist - Artist name
+ * @param {Array<string>} lyrics - Array of lyric lines
+ * @param {number} songId - Song identifier (1 or 2)
+ * @param {Function} onLyricClick - Callback when a lyric line is clicked
+ * @param {string} selectedLyric - Currently selected lyric line
+ */
 const LyricColumn = ({ songTitle, artist, lyrics, songId, onLyricClick, selectedLyric }) => (
   <div className="lyric-column">
     <div className="song-header">
@@ -35,20 +58,49 @@ const LyricColumn = ({ songTitle, artist, lyrics, songId, onLyricClick, selected
   </div>
 );
 
-// --- Main RiffOffPage Component ---
-const RiffOffPage = () => {
+/**
+ * Main RiffOffPage Component
+ * 
+ * Manages the game state and coordinates between UI and services
+ */
+const RiffOffPage = ({ songsWithLyrics, setSongsWithLyrics }) => {
   const { id } = useParams();
-  const initialSongId = Number(id);
+  const navigate = useNavigate();
+  const initialSongId = id;
+  
+  // Game state
   const [leftSongId, setLeftSongId] = useState(initialSongId);
+  const [rightSongId, setRightSongId] = useState(null);
   const [selectedLyric1, setSelectedLyric1] = useState(null);
   const [selectedLyric2, setSelectedLyric2] = useState(null);
-  const [rightSongId, setRightSongId] = useState(null);
+  const [dotCount, setDotCount] = useState(1);
+  const [totalScore, setTotalScore] = useState(0);
+  const [addedDotThisRound, setAddedDotThisRound] = useState(false);
+  
+  // UI state
   const [isPickerOpen, setIsPickerOpen] = useState(false);
   const [isAdvancing, setIsAdvancing] = useState(false);
-  const [dotCount, setDotCount] = useState(1);
-  const [addedDotThisRound, setAddedDotThisRound] = useState(false);
-  const [totalScore, setTotalScore] = useState(0);
+  
+  // Mini search state
+  const [miniSearchQuery, setMiniSearchQuery] = useState('');
+  const [miniSearchResults, setMiniSearchResults] = useState([]);
+  const [miniSearchLoading, setMiniSearchLoading] = useState(false);
+  const [miniSearchError, setMiniSearchError] = useState('');
 
+  /**
+   * Effect: Validate initial song exists
+   * Redirects to search page if song is not found
+   */
+  useEffect(() => {
+    if (!songsWithLyrics[initialSongId]) {
+      navigate('/new');
+    }
+  }, [initialSongId, songsWithLyrics, navigate]);
+
+  /**
+   * Effect: Reset game state when URL changes
+   * Only triggers on URL parameter change, not when new songs are added
+   */
   useEffect(() => {
     setLeftSongId(initialSongId);
     setSelectedLyric1(null);
@@ -59,43 +111,42 @@ const RiffOffPage = () => {
     setTotalScore(0);
   }, [initialSongId]);
 
-  const getLyricsForSong = (song) => {
-    if (!song) return [];
-    const lines = lyrics[song.title];
-    return Array.isArray(lines) ? lines : [];
+  /**
+   * Get lyrics array for a song by ID
+   * @param {string} songId - Song identifier
+   * @returns {Array<string>} - Array of lyric lines
+   */
+  const getLyricsForSong = (songId) => {
+    if (!songId || !songsWithLyrics[songId]) return [];
+    return songsWithLyrics[songId].lyrics || [];
   };
 
-  const leftSong = useMemo(() => songs.find(s => s.id === leftSongId), [leftSongId]);
-  const leftLyrics = useMemo(() => getLyricsForSong(leftSong), [leftSong]);
-  const rightSong = useMemo(() => songs.find(s => s.id === rightSongId), [rightSongId]);
-  const rightLyrics = useMemo(() => getLyricsForSong(rightSong), [rightSong]);
+  // Memoized song data to prevent unnecessary re-renders
+  const leftSong = useMemo(() => songsWithLyrics[leftSongId], [leftSongId, songsWithLyrics]);
+  const leftLyrics = useMemo(() => getLyricsForSong(leftSongId), [leftSongId, songsWithLyrics]);
+  const rightSong = useMemo(() => songsWithLyrics[rightSongId], [rightSongId, songsWithLyrics]);
+  const rightLyrics = useMemo(() => getLyricsForSong(rightSongId), [rightSongId, songsWithLyrics]);
 
-  const getSimilarityPercentage = (a, b) => {
-    const tokenize = (text) => {
-      if (!text) return [];
-      return (text.match(/[A-Za-z0-9']+/g) || []).map(w => w.toLowerCase());
-    };
-    const w1 = new Set(tokenize(a));
-    const w2 = new Set(tokenize(b));
-    if (w1.size === 0 && w2.size === 0) return 100;
-    if (w1.size === 0 || w2.size === 0) return 0;
-    let common = 0;
-    for (const word of w1) {
-      if (w2.has(word)) common += 1;
-    }
-    const denom = Math.max(w1.size, w2.size);
-    return Math.round((common / denom) * 100);
-  };
-
+  // Calculate similarity between selected lyrics using service
   const similarity = (selectedLyric1 && selectedLyric2)
-    ? getSimilarityPercentage(selectedLyric1, selectedLyric2)
+    ? calculateLyricSimilarity(selectedLyric1, selectedLyric2)
     : null;
+  /**
+   * Advance to the next round
+   * Moves right song to left, updates score, resets state
+   */
   const handleNextRound = () => {
     if (!rightSong) return;
+    
+    // Add current round score to total
     if (similarity != null) {
       setTotalScore((s) => s + similarity);
     }
+    
+    // Trigger advancing animation
     setIsAdvancing(true);
+    
+    // After animation, update game state
     setTimeout(() => {
       setLeftSongId(rightSongId);
       setRightSongId(null);
@@ -104,19 +155,93 @@ const RiffOffPage = () => {
       setIsAdvancing(false);
       setIsPickerOpen(false);
       setAddedDotThisRound(false);
+      
+      // Reset mini search state
+      setMiniSearchQuery('');
+      setMiniSearchResults([]);
+      setMiniSearchError('');
     }, 250);
   };
 
-  const similarityColor = similarity == null
-    ? 'neutral'
-    : similarity <= 25
-      ? 'red'
-      : similarity <= 50
-        ? 'orange'
-        : similarity <= 75
-          ? 'yellow'
-          : 'green';
-// Event handler for clicking a lyric
+  /**
+   * Handle mini search form submission
+   * Searches for songs within the riff-off page
+   * 
+   * @param {Event} e - Form submit event
+   */
+  const handleMiniSearch = async (e) => {
+    e.preventDefault();
+    if (!miniSearchQuery.trim()) return;
+
+    setMiniSearchLoading(true);
+    setMiniSearchError('');
+
+    try {
+      // Use service layer for API call
+      const { searchForSongs } = await import('../services/lyricsService');
+      const songs = await searchForSongs(miniSearchQuery);
+      setMiniSearchResults(songs);
+    } catch (err) {
+      setMiniSearchError(err.message);
+      setMiniSearchResults([]);
+    } finally {
+      setMiniSearchLoading(false);
+    }
+  };
+
+  /**
+   * Handle song selection from mini search
+   * Fetches lyrics if needed and sets as right song
+   * 
+   * @param {Object} song - Selected song object
+   */
+  const handleMiniSongSelect = async (song) => {
+    // Check if we already have lyrics cached
+    if (songsWithLyrics[song.id]) {
+      setRightSongId(song.id);
+      setSelectedLyric2(null);
+      setIsPickerOpen(false);
+      setMiniSearchQuery('');
+      setMiniSearchResults([]);
+      return;
+    }
+
+    setMiniSearchLoading(true);
+    setMiniSearchError('');
+
+    try {
+      // Fetch and parse lyrics using service layer
+      const songWithLyrics = await fetchSongWithLyrics(song);
+      
+      // Store song with lyrics in app state
+      setSongsWithLyrics(prev => ({
+        ...prev,
+        [song.id]: songWithLyrics
+      }));
+
+      // Set as right song and close picker
+      setRightSongId(song.id);
+      setSelectedLyric2(null);
+      setIsPickerOpen(false);
+      setMiniSearchQuery('');
+      setMiniSearchResults([]);
+    } catch (err) {
+      setMiniSearchError(`Failed to load lyrics: ${err.message}`);
+    } finally {
+      setMiniSearchLoading(false);
+    }
+  };
+
+  // Get color classification for similarity score using service
+  const similarityColor = getSimilarityColor(similarity);
+  
+  /**
+   * Handle lyric line click
+   * Updates selected lyric for the appropriate song
+   * 
+   * @param {string} lyric - The clicked lyric line
+   * @param {number} songId - Song identifier (1 or 2)
+   */
   const handleLyricClick = (lyric, songId) => {
     if (songId === 1) {
       setSelectedLyric1(lyric);
@@ -124,13 +249,19 @@ const RiffOffPage = () => {
       setSelectedLyric2(lyric);
     }
   };
-  // Event handler for the "Clear" button
+  
+  /**
+   * Clear both selected lyrics
+   */
   const clearSelection = () => {
     setSelectedLyric1(null);
     setSelectedLyric2(null);
   };
 
-  // When second lyric is selected and we haven't added a dot for this round yet, increment the trail
+  /**
+   * Effect: Update progress trail when second lyric is selected
+   * Adds a dot to the trail only once per round
+   */
   useEffect(() => {
     if (selectedLyric2 && !addedDotThisRound) {
       setDotCount((c) => c + 1);
@@ -277,23 +408,101 @@ const RiffOffPage = () => {
             {isPickerOpen && (
               <div className="mini-search">
                 <div className="mini-search-inner">
-                  <SearchBar />
+                  {/* Search Form */}
+                  <form onSubmit={handleMiniSearch} style={{ padding: '1rem', borderBottom: '1px solid #333' }}>
+                    <div style={{ display: 'flex', gap: '0.5rem' }}>
+                      <input
+                        type="text"
+                        value={miniSearchQuery}
+                        onChange={(e) => setMiniSearchQuery(e.target.value)}
+                        placeholder="Search for a song..."
+                        style={{
+                          flex: 1,
+                          padding: '0.5rem',
+                          fontSize: '0.9rem',
+                          backgroundColor: '#1a1a1a',
+                          color: 'white',
+                          border: '1px solid #444',
+                          borderRadius: '4px',
+                        }}
+                      />
+                      <button
+                        type="submit"
+                        disabled={!miniSearchQuery.trim() || miniSearchLoading}
+                        style={{
+                          padding: '0.5rem 1rem',
+                          fontSize: '0.9rem',
+                          backgroundColor: miniSearchLoading ? '#333' : '#6200ea',
+                          color: 'white',
+                          border: 'none',
+                          borderRadius: '4px',
+                          cursor: miniSearchLoading ? 'not-allowed' : 'pointer',
+                          fontWeight: 'bold',
+                        }}
+                      >
+                        {miniSearchLoading ? 'Searching...' : 'Search'}
+                      </button>
+                    </div>
+                    {miniSearchError && (
+                      <p style={{ color: 'tomato', marginTop: '0.5rem', fontSize: '0.85rem' }}>{miniSearchError}</p>
+                    )}
+                  </form>
+
                   <div className="mini-song-list">
-                    {songs
-                      .filter(s => s.id !== leftSongId)
-                      .map(s => (
-                        <div
-                          key={s.id}
-                          className="mini-song-item"
-                          onClick={() => {
-                            setRightSongId(s.id);
-                            setSelectedLyric2(null);
-                            setIsPickerOpen(false);
-                          }}
-                        >
-                          <SongListItem title={s.title} artist={s.artist} duration={s.duration} />
-                        </div>
-                      ))}
+                    {/* Show search results if available */}
+                    {miniSearchResults.length > 0 ? (
+                      <>
+                        <p style={{ padding: '0.5rem 1rem', color: '#888', fontSize: '0.85rem', fontWeight: 'bold' }}>
+                          Search Results:
+                        </p>
+                        {miniSearchResults.map(s => (
+                          <div
+                            key={s.id}
+                            className="mini-song-item"
+                            onClick={() => handleMiniSongSelect(s)}
+                            style={{
+                              cursor: miniSearchLoading ? 'wait' : 'pointer',
+                              opacity: miniSearchLoading ? 0.6 : 1,
+                            }}
+                          >
+                            <SongListItem title={s.title} artist={s.artist} duration="" />
+                          </div>
+                        ))}
+                      </>
+                    ) : null}
+
+                    {/* Show previously loaded songs */}
+                    {Object.values(songsWithLyrics).filter(s => s.id !== leftSongId).length > 0 && (
+                      <>
+                        <p style={{ padding: '0.5rem 1rem', color: '#888', fontSize: '0.85rem', fontWeight: 'bold', marginTop: miniSearchResults.length > 0 ? '1rem' : '0' }}>
+                          Previously Loaded Songs:
+                        </p>
+                        {Object.values(songsWithLyrics)
+                          .filter(s => s.id !== leftSongId)
+                          .map(s => (
+                            <div
+                              key={s.id}
+                              className="mini-song-item"
+                              onClick={() => {
+                                setRightSongId(s.id);
+                                setSelectedLyric2(null);
+                                setIsPickerOpen(false);
+                                setMiniSearchQuery('');
+                                setMiniSearchResults([]);
+                              }}
+                            >
+                              <SongListItem title={s.title} artist={s.artist} duration="" />
+                            </div>
+                          ))}
+                      </>
+                    )}
+
+                    {/* Show message if no results and no previously loaded songs */}
+                    {miniSearchResults.length === 0 && Object.values(songsWithLyrics).filter(s => s.id !== leftSongId).length === 0 && (
+                      <p style={{ padding: '2rem 1rem', textAlign: 'center', color: '#888' }}>
+                        Search for a song above to add it to the riff
+                      </p>
+                    )}
                   </div>
                 </div>
               </div>
