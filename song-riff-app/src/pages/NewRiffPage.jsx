@@ -1,4 +1,5 @@
-import React from 'react';
+
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { pageVariants, pageTransition } from '../pageAnimations';
@@ -135,7 +136,7 @@ const handleLyricsTest = async () => {
           Choose Song <FaPlus style={{marginLeft: '0.5rem'}} />
         </Button>
       </div>
-    </div>
+   
     </motion.div>
   );
 };
