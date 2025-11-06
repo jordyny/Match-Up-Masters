@@ -1,7 +1,6 @@
 const axios = require('axios');
 const cheerio = require('cheerio');
-const GENIUS_API_KEY = "O3dHSiLrkubAAdYTm-o_qc5lTK33qQ7jM6YmZNPAlTbsmHZ6jrGiIlP6tMgFfmRx";
-
+const GENIUS_API_KEY = process.env.GENIUS_API_KEY;
 async function searchSong(query) {
 
   //goes to base url and submits get request with query/API key 
