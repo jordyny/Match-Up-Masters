@@ -20,7 +20,8 @@ const HomePage = () => {
         <Button to="/timer">New Riff</Button>
 
         {/* Past Riffs can stay as is or go to a new page later */}
-        <Button to="/home">Past Riffs</Button>
+        <Button to="/past-riffs">Past Riffs</Button>
+
       </div>
     </motion.div>
   );

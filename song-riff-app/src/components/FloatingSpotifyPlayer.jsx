@@ -1,19 +1,25 @@
 import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
-import SpotifyPlayer from './SpotifyPlayer';
 
 /**
  * FloatingSpotifyPlayer
- * - Renders a single Spotify iframe that is absolutely positioned inside the riff container
- * - Moves between left/right column anchors without unmounting to keep playback alive
+ * - Renders a floating Spotify iframe from a plain URL (no track metadata required)
  *
  * Props:
- * - containerRef: ref to the container element used for absolute positioning context
- * - targetRef: ref to the target column wrapper to center above
- * - track: spotify track data to render in the iframe
+ * - containerRef: ref to the main layout container (for positioning)
+ * - targetRef: ref to either left or right column element
+ * - trackUrl: plain Spotify track URL (e.g. https://open.spotify.com/track/12345)
  */
-const FloatingSpotifyPlayer = ({ containerRef, targetRef, track }) => {
+const FloatingSpotifyPlayer = ({ containerRef, targetRef, trackUrl }) => {
   const boxRef = useRef(null);
-  const [pos, setPos] = useState({ left: 0, top: 0, visible: false, anchor: 'left' });
+  const [pos, setPos] = useState({ left: 0, top: 0, visible: false });
+
+  if (!trackUrl) return null;
+
+  // Convert normal Spotify link → embed link
+  const embedUrl = trackUrl.replace(
+    "open.spotify.com/track",
+    "open.spotify.com/embed/track"
+  );
 
   const computePosition = () => {
     const container = containerRef?.current;
@@ -24,59 +30,17 @@ const FloatingSpotifyPlayer = ({ containerRef, targetRef, track }) => {
     const containerRect = container.getBoundingClientRect();
     const targetRect = target.getBoundingClientRect();
 
-    const centerX = targetRect.left + targetRect.width / 2;
-    const containerCenterX = containerRect.left + containerRect.width / 2;
-    const topY = targetRect.top; // above the entire pane and selected lyric box
+    const left = targetRect.left - containerRect.left;
+    const top = targetRect.top - containerRect.top - 10; // place above column
 
-    // Determine which column we are targeting to set flush alignment
-    const isRightColumn = centerX >= containerCenterX;
-    const leftEdge = targetRect.left - containerRect.left;
-    const rightEdge = targetRect.right - containerRect.left;
-
-    // For left column: anchor left edge. For right column: anchor right edge.
-    let left = isRightColumn ? rightEdge : leftEdge;
-    // Clamp within container bounds to avoid flying off-screen
-    left = Math.max(0, Math.min(left, containerRect.width));
-    const top = topY - containerRect.top - 8; // 8px spacing above
-    const anchor = isRightColumn ? 'right' : 'left';
-    const width = Math.round(targetRect.width / 2);
-
-    setPos({ left, top, visible: true, anchor, width });
+    setPos({ left, top, visible: true });
   };
 
   useLayoutEffect(() => {
     computePosition();
-    const onResize = () => computePosition();
-    const onScroll = () => computePosition();
-    window.addEventListener('resize', onResize);
-    window.addEventListener('scroll', onScroll, { passive: true });
-
-    const container = containerRef?.current;
-    if (container) container.addEventListener('scroll', onScroll, { passive: true });
-
-    return () => {
-      window.removeEventListener('resize', onResize);
-      window.removeEventListener('scroll', onScroll);
-      if (container) container.removeEventListener('scroll', onScroll);
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [containerRef, targetRef]);
-
-  useEffect(() => {
-    computePosition();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [track]);
-
-  useEffect(() => {
-    const container = containerRef?.current;
-    if (!container) return;
-    const onTransitionEnd = () => computePosition();
-    container.addEventListener('transitionend', onTransitionEnd);
-    return () => container.removeEventListener('transitionend', onTransitionEnd);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [containerRef, targetRef]);
-
-  if (!track) return null;
+    window.addEventListener('resize', computePosition);
+    return () => window.removeEventListener('resize', computePosition);
+  }, [targetRef, containerRef]);
 
   return (
     <div
@@ -84,17 +48,20 @@ const FloatingSpotifyPlayer = ({ containerRef, targetRef, track }) => {
       className="floating-spotify-player"
       style={{
         position: 'absolute',
-        transform: pos.anchor === 'right' ? 'translate(-100%, -100%)' : 'translate(0, -100%)',
         left: pos.left,
         top: pos.top,
-        width: pos.width || undefined,
-        zIndex: 50,
-        pointerEvents: 'auto',
+        transform: 'translateY(-100%)',
         visibility: pos.visible ? 'visible' : 'hidden',
-        transition: 'left 250ms ease, top 250ms ease'
+        zIndex: 999,
       }}
     >
-      <SpotifyPlayer spotify={track} />
+      <iframe
+        src={embedUrl}
+        width="300"
+        height="80"
+        frameBorder="0"
+        allow="encrypted-media"
+      ></iframe>
     </div>
   );
 };

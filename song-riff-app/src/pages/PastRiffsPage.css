@@ -1,0 +1,18 @@
+.riffs-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.riff-card {
+  background: #222;
+  border-radius: 10px;
+  padding: 1rem;
+  color: white;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+}
+
+.riff-card .date {
+  font-size: 0.8rem;
+  color: #aaa;
+}

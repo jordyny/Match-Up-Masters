@@ -19,6 +19,7 @@ import HowToPlayPage from './pages/HowToPlayPage';
 import TimerSelectPage from './pages/TimerSelectPage';
 import GameOverPage from './pages/GameOverPage';
 import ScoreboardPage from "./pages/ScoreboardPage";
+import PastRiffsPage from './pages/PastRiffsPage';
 
 function App() {
   // Authentication state - stores logged in user's email
@@ -77,6 +78,7 @@ function App() {
       <Route path="/how-to" element={<HowToPlayPage />} />
       <Route path="/gameover" element={<GameOverPage />} />
       <Route path="/scoreboard" element={<ScoreboardPage />} />
+      <Route path="/past-riffs" element={<PastRiffsPage />} />
     </Routes>
 
         </div>

@@ -12,6 +12,8 @@ import { Link, useParams, useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion'; 
 import { pageVariants, pageTransition } from '../pageAnimations';
 import SongListItem from '../components/SongListItem';
+import FloatingSpotifyPlayer from '../components/FloatingSpotifyPlayer';
+
 
 
 import { 
@@ -85,7 +87,9 @@ const RiffOffPage = ({ songsWithLyrics, setSongsWithLyrics }) => {
   const [dotCount, setDotCount] = useState(1);
   const [totalScore, setTotalScore] = useState(0);
   const [addedDotThisRound, setAddedDotThisRound] = useState(false);
-  
+  const [songsPlayed, setSongsPlayed] = useState([]);
+  const [songsInRiff, setSongsInRiff] = useState([]);
+
   // UI state
   const [isPickerOpen, setIsPickerOpen] = useState(false);
   const [isAdvancing, setIsAdvancing] = useState(false);
@@ -118,14 +122,26 @@ useEffect(() => {
 
 useEffect(() => {
   if (timeLeft === 0) {
-    // Save score to localStorage before navigating
+    // Save this finished riff
+    const savedRiffs = JSON.parse(localStorage.getItem('pastRiffs')) || [];
+
+    savedRiffs.push({
+      songs: songsInRiff.join(', '), // saves all songs in one string
+      score: totalScore,
+      date: new Date().toISOString()
+    });
+
+    localStorage.setItem('pastRiffs', JSON.stringify(savedRiffs));
+
+    // ✅ Save to scoreboard too
     const savedScores = JSON.parse(localStorage.getItem("scores")) || [];
     savedScores.push({ score: totalScore, date: new Date().toISOString() });
     localStorage.setItem("scores", JSON.stringify(savedScores));
 
+    // ✅ Navigate with score
     navigate('/gameover', { state: { totalScore } });
   }
-}, [timeLeft, navigate, totalScore]);
+}, [timeLeft, totalScore, songsInRiff, navigate]);
 
 
 /**
@@ -176,10 +192,21 @@ useEffect(() => {
 
   // Memoized song data to prevent unnecessary re-renders
   const leftSong = useMemo(() => songsWithLyrics[leftSongId], [leftSongId, songsWithLyrics]);
+  useEffect(() => {
+  if (leftSong) {
+    setSongsPlayed([`${leftSong.title} - ${leftSong.artist}`]);
+  }
+}, [leftSongId]);
+
   const leftLyrics = useMemo(() => getLyricsForSong(leftSongId), [leftSongId, songsWithLyrics]);
   const rightSong = useMemo(() => songsWithLyrics[rightSongId], [rightSongId, songsWithLyrics]);
   const rightLyrics = useMemo(() => getLyricsForSong(rightSongId), [rightSongId, songsWithLyrics]);
 
+  useEffect(() => {
+  if (leftSong && songsInRiff.length === 0) {
+    setSongsInRiff([`${leftSong.title} - ${leftSong.artist}`]);
+  }
+}, [leftSong]);
   
   // Calculate similarity between selected lyrics using service
   const similarity = (selectedLyric1 && selectedLyric2)
@@ -194,13 +221,20 @@ useEffect(() => {
   }, [similarity]);
 
 
+
     /*
    *advance to the next round
    * Moves right song to left, updates score, resets state
    */
   const handleNextRound = () => {
     if (!rightSong) return;
-    
+
+      // Save next song into the riff chain
+    setSongsInRiff(prev => [
+    ...prev,
+    `${rightSong.title} - ${rightSong.artist}`
+      ]);
+
     // Add current round score to total
   // Add points based on similarity (<10%=1, <20%=2...)
   if (similarity != null) {
@@ -593,7 +627,9 @@ useEffect(() => {
           )}
         </div>
       </div>
+      
     </motion.div>
+    
   );
 };
 
