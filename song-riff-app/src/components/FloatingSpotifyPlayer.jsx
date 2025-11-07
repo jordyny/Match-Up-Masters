@@ -13,7 +13,7 @@ import SpotifyPlayer from './SpotifyPlayer';
  */
 const FloatingSpotifyPlayer = ({ containerRef, targetRef, track }) => {
   const boxRef = useRef(null);
-  const [pos, setPos] = useState({ left: 0, top: 0, visible: false });
+  const [pos, setPos] = useState({ left: 0, top: 0, visible: false, anchor: 'left' });
 
   const computePosition = () => {
     const container = containerRef?.current;
@@ -25,12 +25,23 @@ const FloatingSpotifyPlayer = ({ containerRef, targetRef, track }) => {
     const targetRect = target.getBoundingClientRect();
 
     const centerX = targetRect.left + targetRect.width / 2;
+    const containerCenterX = containerRect.left + containerRect.width / 2;
     const topY = targetRect.top; // above the entire pane and selected lyric box
 
-    const left = centerX - containerRect.left;
-    const top = topY - containerRect.top - 8; // 8px spacing above
+    // Determine which column we are targeting to set flush alignment
+    const isRightColumn = centerX >= containerCenterX;
+    const leftEdge = targetRect.left - containerRect.left;
+    const rightEdge = targetRect.right - containerRect.left;
 
-    setPos({ left, top, visible: true });
+    // For left column: anchor left edge. For right column: anchor right edge.
+    let left = isRightColumn ? rightEdge : leftEdge;
+    // Clamp within container bounds to avoid flying off-screen
+    left = Math.max(0, Math.min(left, containerRect.width));
+    const top = topY - containerRect.top - 8; // 8px spacing above
+    const anchor = isRightColumn ? 'right' : 'left';
+    const width = Math.round(targetRect.width / 2);
+
+    setPos({ left, top, visible: true, anchor, width });
   };
 
   useLayoutEffect(() => {
@@ -73,12 +84,14 @@ const FloatingSpotifyPlayer = ({ containerRef, targetRef, track }) => {
       className="floating-spotify-player"
       style={{
         position: 'absolute',
-        transform: 'translate(-50%, -100%)',
+        transform: pos.anchor === 'right' ? 'translate(-100%, -100%)' : 'translate(0, -100%)',
         left: pos.left,
         top: pos.top,
+        width: pos.width || undefined,
         zIndex: 50,
         pointerEvents: 'auto',
-        visibility: pos.visible ? 'visible' : 'hidden'
+        visibility: pos.visible ? 'visible' : 'hidden',
+        transition: 'left 250ms ease, top 250ms ease'
       }}
     >
       <SpotifyPlayer spotify={track} />
