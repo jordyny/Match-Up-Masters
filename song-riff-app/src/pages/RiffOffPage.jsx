@@ -10,7 +10,7 @@
  * @component
  */
 
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion'; 
 import { pageVariants, pageTransition } from '../pageAnimations';
@@ -18,6 +18,7 @@ import LyricColumn from '../components/LyricColumn';
 import SongPicker from '../components/SongPicker';
 import ProgressTrail from '../components/ProgressTrail';
 import ScoreboardPill from '../components/ScoreboardPill';
+import FloatingSpotifyPlayer from '../components/FloatingSpotifyPlayer';
 import { useRiffOffGame } from '../hooks/useRiffOffGame';
 import { useSongSearch } from '../hooks/useSongSearch';
 
@@ -40,6 +41,9 @@ const RiffOffPage = ({ songsWithLyrics, setSongsWithLyrics }) => {
   const gameState = useRiffOffGame(initialSongId);
   const songSearch = useSongSearch();
   const [dots, setDots] = useState([]);
+  const containerRef = useRef(null);
+  const leftColRef = useRef(null);
+  const rightColRef = useRef(null);
 
   /**
    * Effect: Validate initial song exists
@@ -158,9 +162,15 @@ const RiffOffPage = ({ songsWithLyrics, setSongsWithLyrics }) => {
         </div>
 
         {/* Container for the two lyric columns */}
-        <div className={`riff-container ${gameState.isAdvancing ? 'advancing' : ''}`}>
+        <div ref={containerRef} className={`riff-container ${gameState.isAdvancing ? 'advancing' : ''}`}>
+          {/* Single floating Spotify player that moves without re-rendering */}
+          <FloatingSpotifyPlayer
+            containerRef={containerRef}
+            targetRef={rightSong ? rightColRef : leftColRef}
+            track={(rightSong && rightSong.spotify) ? rightSong.spotify : (leftSong ? leftSong.spotify : null)}
+          />
           {leftSong && (
-            <div className="column-wrapper left-col">
+            <div ref={leftColRef} className="column-wrapper left-col">
               <LyricColumn
                 songTitle={leftSong.title}
                 artist={leftSong.artist}
@@ -168,14 +178,14 @@ const RiffOffPage = ({ songsWithLyrics, setSongsWithLyrics }) => {
                 songId={1}
                 onLyricClick={gameState.handleLyricClick}
                 selectedLyric={gameState.selectedLyric1}
-                spotify={leftSong.spotify}
+                spotify={null}
               />
             </div>
           )}
 
           {/* Right column: either selected song or add box */}
           {rightSong ? (
-            <div className="column-wrapper right-col">
+            <div ref={rightColRef} className="column-wrapper right-col">
               <LyricColumn
                 songTitle={rightSong.title}
                 artist={rightSong.artist}
@@ -183,7 +193,7 @@ const RiffOffPage = ({ songsWithLyrics, setSongsWithLyrics }) => {
                 songId={2}
                 onLyricClick={gameState.handleLyricClick}
                 selectedLyric={gameState.selectedLyric2}
-                spotify={rightSong.spotify}
+                spotify={null}
               />
             </div>
           ) : (
