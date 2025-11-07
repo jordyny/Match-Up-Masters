@@ -70,7 +70,7 @@ const RiffOffPage = ({ songsWithLyrics, setSongsWithLyrics }) => {
 
   useEffect(() => {
     if (leftSong && gameState.dotCount === 1) {
-      setDots([{ title: leftSong.title, artist: leftSong.artist, albumArt: leftSong.spotify?.albumArt }]);
+      setDots([{ title: leftSong.title, artist: leftSong.artist, albumArt: leftSong.spotify?.albumArt, lyric: gameState.selectedLyric1 }]);
     } else if (!leftSong) {
       setDots([]);
     }
@@ -78,9 +78,20 @@ const RiffOffPage = ({ songsWithLyrics, setSongsWithLyrics }) => {
 
   useEffect(() => {
     if (rightSong && dots.length < gameState.dotCount) {
-      setDots((prev) => [...prev, { title: rightSong.title, artist: rightSong.artist, albumArt: rightSong.spotify?.albumArt }]);
+      setDots((prev) => [...prev, { title: rightSong.title, artist: rightSong.artist, albumArt: rightSong.spotify?.albumArt, lyric: gameState.selectedLyric2 }]);
     }
-  }, [gameState.dotCount, rightSong?.title, rightSong?.artist, rightSong?.spotify?.albumArt]);
+  }, [gameState.dotCount, rightSong?.title, rightSong?.artist, rightSong?.spotify?.albumArt, gameState.selectedLyric2]);
+
+  // Keep first dot's lyric in sync with selectedLyric1
+  useEffect(() => {
+    if (dots.length > 0) {
+      setDots((prev) => {
+        const next = [...prev];
+        next[0] = { ...next[0], lyric: gameState.selectedLyric1 };
+        return next;
+      });
+    }
+  }, [gameState.selectedLyric1]);
 
   /**
    * Handle song selection from picker
