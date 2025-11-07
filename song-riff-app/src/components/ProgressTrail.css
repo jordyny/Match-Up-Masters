@@ -21,6 +21,7 @@
   -webkit-backdrop-filter: blur(10px);
   border: 1px solid rgba(255, 255, 255, 0.2);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  position: relative; /* allow absolute tooltip positioning */
 }
 
 .trail-dot {
@@ -55,6 +56,55 @@
   justify-content: center;
   font-weight: 800;
   font-size: 0.85rem;
+}
+
+/* Dot tooltip (appears under hovered dot) */
+.dot-tooltip {
+  position: absolute;
+  transform: translateX(-50%);
+  min-width: 180px;
+  max-width: 240px;
+  padding: 8px;
+  border-radius: 12px;
+  background: rgba(20, 20, 20, 0.9);
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.35);
+  display: flex;
+  gap: 10px;
+}
+
+.dot-tooltip-art {
+  width: 44px;
+  height: 44px;
+  border-radius: 8px;
+  object-fit: cover;
+  flex: 0 0 44px;
+}
+
+.dot-tooltip-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  overflow: hidden;
+}
+
+.dot-tooltip-title {
+  font-weight: 700;
+  font-size: 0.9rem;
+  line-height: 1.1rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.dot-tooltip-artist {
+  font-weight: 500;
+  font-size: 0.8rem;
+  opacity: 0.85;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .score-pill span {

@@ -8,7 +8,6 @@
  */
 
 import React from 'react';
-import SpotifyPlayer from './SpotifyPlayer';
 
 /**
  * LyricColumn component
@@ -42,8 +41,6 @@ const LyricColumn = ({
         <h3>{songTitle}</h3>
         <p>{artist}</p>
       </div>
-      {/* Spotify Player - only shows if Spotify track is available */}
-      <SpotifyPlayer spotify={spotify} />
       {lyrics && lyrics.length > 0 ? (
         <div className="lyrics">
           {lyrics.map((line, index) => (

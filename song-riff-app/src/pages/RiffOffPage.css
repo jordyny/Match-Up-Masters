@@ -52,7 +52,10 @@
 }
 
 .riff-header h2 {
-    font-size: 1.25rem;
+    font-size: 2rem;
+    font-weight: 900;
+    color: #ffffff;
+    text-shadow: 0 0 6px rgba(255, 255, 255, 0.6), 0 0 12px rgba(255, 255, 255, 0.35);
 }
 
 /* --- ACTION BAR STYLES --- */
@@ -168,7 +171,8 @@
     flex-grow: 1;
     overflow: visible;
     min-height: 300px;
-}
+    position: relative; /* needed for FloatingSpotifyPlayer absolute positioning */
+  }
 
 .column-wrapper {
   transition: transform 250ms ease, opacity 250ms ease;
