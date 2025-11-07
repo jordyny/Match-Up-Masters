@@ -7,7 +7,7 @@
  * @component
  */
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import SongListItem from './SongListItem';
 
 /**
@@ -34,6 +34,17 @@ const SongPicker = ({
   songsWithLyrics,
   excludeSongId
 }) => {
+  const [dots, setDots] = useState('');
+  useEffect(() => {
+    if (!isLoading) {
+      setDots('');
+      return;
+    }
+    const id = setInterval(() => {
+      setDots((prev) => (prev.length >= 3 ? '' : prev + '.'));
+    }, 300);
+    return () => clearInterval(id);
+  }, [isLoading]);
   // Filter out the left song from previously loaded songs
   const previouslyLoadedSongs = Object.values(songsWithLyrics)
     .filter(s => s.id !== excludeSongId);
@@ -73,7 +84,7 @@ const SongPicker = ({
                 fontWeight: 'bold',
               }}
             >
-              {isLoading ? 'Searching...' : 'Search'}
+              {isLoading ? `Searching${dots}` : 'Search'}
             </button>
           </div>
           {error && (
