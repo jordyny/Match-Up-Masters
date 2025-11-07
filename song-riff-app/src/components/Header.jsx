@@ -39,13 +39,9 @@ const Header = ({ userEmail, onLogout }) => {
           <FiHelpCircle className="header-icon" />
       </Link>
 
-      {/* Another  visual divider */}
-      <div className="header-divider"></div>
+      
 
-      {/* Save Icon */}
-      <Link to="/how-to">
-          <FiArchive className="header-icon" />
-      </Link>
+      
 
     </div>
   );

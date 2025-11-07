@@ -6,61 +6,6 @@
     margin-top: 140px; 
 }
 
-/* Progress trail at the top */
-.progress-trail {
-  width: 100%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin-bottom: 0.5rem;
-}
-
-.progress-trail-inner {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.trail-dot {
-  fill: #ffffff;
-  /* Slight glow effect on the progress trail bar*/
-  filter: drop-shadow(0 0 4px rgba(255,255,255,0.7));
-}
-
-.trail-line {
-  stroke: #ffffff;
-  stroke-width: 4;
-  stroke-dasharray: 6 6;
-  animation: dash-move 1.2s linear infinite;
-  filter: drop-shadow(0 0 4px rgba(255,255,255,0.7));
-
-}
-
-/* Score pill to the right of the trail */
-.score-pill {
-  height: 28px;
-  padding: 0 10px;
-  border-radius: 9999px;
-  background: rgba(255, 255, 255, 0.15);
-  border: 1px solid rgba(255, 255, 255, 0.25);
-  color: #fff;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 800;
-  font-size: 0.85rem;
-}
-
-.score-pill span {
-  white-space: nowrap;
-}
-
-@keyframes dash-move {
-  to {
-    stroke-dashoffset: -24;
-  }
-}
-
 .floating-save-button {
   position: absolute;
   top: 1.5rem;
@@ -107,32 +52,21 @@
 }
 
 .riff-header h2 {
-    font-size: 1.25rem;
+    font-size: 2rem;
+    font-weight: 900;
+    color: #ffffff;
+    text-shadow: 0 0 6px rgba(255, 255, 255, 0.6), 0 0 12px rgba(255, 255, 255, 0.35);
 }
 
-/* --- CHOSEN LYRICS BOX STYLES --- */
-.chosen-lyrics-box {
-  width: 100%;
-  max-width: 800px;
-  margin: 0 auto 1.5rem auto;
-  padding: 1rem 1.5rem;
-  border-radius: 12px;
-
-  /* Apply the blur effect */
-  background-color: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-}
-
-.chosen-lyrics-row {
+/* --- ACTION BAR STYLES --- */
+.action-bar {
   width: 100%;
   max-width: 800px;
   margin: 0 auto 1.25rem auto;
   display: flex;
   align-items: center;
   gap: 0.75rem;
+  justify-content: center;
 }
 
 .next-round-button {
@@ -151,16 +85,29 @@
   transform: translateX(2px);
 }
 
-.chosen-header {
+/* Selected Lyric Display (above each column) */
+.selected-lyric-display {
+  width: 100%;
+  padding: 1rem 1.5rem;
+  margin-bottom: 1rem;
+  border-radius: 12px;
+  background-color: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  min-height: 60px;
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  margin-bottom: 0.75rem;
 }
 
-.chosen-header h3 {
-  font-size: 1.25rem;
-  font-weight: 700;
+.selected-lyric-display p {
+  margin: 0;
+  color: #fff;
+  font-size: 1rem;
+  line-height: 1.5;
+  text-align: center;
+  width: 100%;
 }
 
 .clear-button {
@@ -183,13 +130,11 @@
 .similarity-badge {
   height: 36px;
   padding: 0 14px;
-  border-radius: 5px; /* rounded to "clear" button radius*/
+  border-radius: 6px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   font-weight: 800;
-  margin-left: auto; /* push towards the right within header */
-  margin-right: 0.5rem;
   color: #fff;
 }
 
@@ -217,25 +162,6 @@
   background: #22c55e;
 }
 
-.chosen-lyrics-content {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-/* ---  CHOSEN LYRIC (INSIDE BOX) STYLES --- */
-.chosen-lyric {
-  background-color: rgba(255, 255, 255, 0.05); /* Make it slightly brighter */
-  padding: 0.75rem 1rem;
-  border-radius: 8px;
-  text-align: left;
-  font-style: italic;
-  color: #e0e0e0; /* Brighter text */
-  min-height: 2.5rem;
-  display: flex;
-  align-items: center;
-  border-left: 3px solid #1DB954;
-}
 
 .riff-container {
     display: grid;
@@ -245,7 +171,8 @@
     flex-grow: 1;
     overflow: visible;
     min-height: 300px;
-}
+    position: relative; /* needed for FloatingSpotifyPlayer absolute positioning */
+  }
 
 .column-wrapper {
   transition: transform 250ms ease, opacity 250ms ease;

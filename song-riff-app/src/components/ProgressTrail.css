@@ -1,0 +1,112 @@
+/* Progress Trail Container - Fixed position (stays in viewport) */
+.progress-trail-container {
+  position: fixed;
+  top: 1.5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.progress-trail-inner {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0.5rem 1rem;
+  border-radius: 9999px;
+  background-color: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  position: relative; /* allow absolute tooltip positioning */
+}
+
+.trail-dot {
+  fill: #ffffff;
+  filter: drop-shadow(0 0 4px rgba(255,255,255,0.7));
+}
+
+.trail-line {
+  stroke: #ffffff;
+  stroke-width: 4;
+  stroke-dasharray: 6 6;
+  animation: dash-move 1.2s linear infinite;
+  filter: drop-shadow(0 0 4px rgba(255,255,255,0.7));
+}
+
+@keyframes dash-move {
+  to {
+    stroke-dashoffset: -24;
+  }
+}
+
+/* Score pill */
+.score-pill {
+  height: 28px;
+  padding: 0 10px;
+  border-radius: 9999px;
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  color: #fff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 0.85rem;
+}
+
+/* Dot tooltip (appears under hovered dot) */
+.dot-tooltip {
+  position: absolute;
+  transform: translateX(-50%);
+  min-width: 180px;
+  max-width: 240px;
+  padding: 8px;
+  border-radius: 12px;
+  background: rgba(20, 20, 20, 0.9);
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.35);
+  display: flex;
+  gap: 10px;
+}
+
+.dot-tooltip-art {
+  width: 44px;
+  height: 44px;
+  border-radius: 8px;
+  object-fit: cover;
+  flex: 0 0 44px;
+}
+
+.dot-tooltip-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  overflow: hidden;
+}
+
+.dot-tooltip-title {
+  font-weight: 700;
+  font-size: 0.9rem;
+  line-height: 1.1rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.dot-tooltip-artist {
+  font-weight: 500;
+  font-size: 0.8rem;
+  opacity: 0.85;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.score-pill span {
+  white-space: nowrap;
+}
