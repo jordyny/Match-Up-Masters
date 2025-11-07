@@ -39,6 +39,7 @@ const RiffOffPage = ({ songsWithLyrics, setSongsWithLyrics }) => {
   // Custom hooks for business logic
   const gameState = useRiffOffGame(initialSongId);
   const songSearch = useSongSearch();
+  const [dots, setDots] = useState([]);
 
   /**
    * Effect: Validate initial song exists
@@ -62,6 +63,20 @@ const RiffOffPage = ({ songsWithLyrics, setSongsWithLyrics }) => {
   const leftLyrics = useMemo(() => getLyricsForSong(gameState.leftSongId), [gameState.leftSongId, songsWithLyrics]);
   const rightSong = useMemo(() => songsWithLyrics[gameState.rightSongId], [gameState.rightSongId, songsWithLyrics]);
   const rightLyrics = useMemo(() => getLyricsForSong(gameState.rightSongId), [gameState.rightSongId, songsWithLyrics]);
+
+  useEffect(() => {
+    if (leftSong && gameState.dotCount === 1) {
+      setDots([{ title: leftSong.title, artist: leftSong.artist, albumArt: leftSong.spotify?.albumArt }]);
+    } else if (!leftSong) {
+      setDots([]);
+    }
+  }, [initialSongId, leftSong?.title, leftSong?.artist, leftSong?.spotify?.albumArt, gameState.dotCount]);
+
+  useEffect(() => {
+    if (rightSong && dots.length < gameState.dotCount) {
+      setDots((prev) => [...prev, { title: rightSong.title, artist: rightSong.artist, albumArt: rightSong.spotify?.albumArt }]);
+    }
+  }, [gameState.dotCount, rightSong?.title, rightSong?.artist, rightSong?.spotify?.albumArt]);
 
   /**
    * Handle song selection from picker
@@ -98,7 +113,7 @@ const RiffOffPage = ({ songsWithLyrics, setSongsWithLyrics }) => {
       transition={pageTransition}
     >
       {/* Fixed Progress Trail */}
-      <ProgressTrail count={gameState.dotCount} />
+      <ProgressTrail count={gameState.dotCount} dots={dots} />
       {/* Scoreboard pill to the left of Save button */}
       <ScoreboardPill score={gameState.totalScore} highScore={gameState.totalScore} />
       
