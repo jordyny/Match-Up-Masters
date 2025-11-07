@@ -16,6 +16,8 @@ import HomePage from './pages/HomePage';
 import NewRiffPage from './pages/NewRiffPage';
 import RiffOffPage from './pages/RiffOffPage';
 import HowToPlayPage from './pages/HowToPlayPage';
+import TimerSelectPage from './pages/TimerSelectPage';
+import GameOverPage from './pages/GameOverPage';
 
 function App() {
   // Authentication state - stores logged in user's email
@@ -58,13 +60,22 @@ function App() {
       {/* Wrap the content in AnimatePresence */}
       <AnimatePresence mode="wait">
         <div className="main-content" key={location.pathname}> {}
-          <Routes location={location}> {/* Pass location to Routes */}
-            <Route path="/" element={<LoginPage onLogin={handleLogin} />} />
-            <Route path="/home" element={<HomePage />} />
-            <Route path="/new" element={<NewRiffPage songsWithLyrics={songsWithLyrics} setSongsWithLyrics={setSongsWithLyrics} />} />
-            <Route path="/riff/:id" element={<RiffOffPage songsWithLyrics={songsWithLyrics} setSongsWithLyrics={setSongsWithLyrics} />} />
-            <Route path="/how-to" element={<HowToPlayPage />} />
-          </Routes>
+    <Routes location={location}>
+      <Route path="/" element={<LoginPage onLogin={handleLogin} />} />
+      <Route path="/home" element={<HomePage />} />
+      <Route 
+        path="/new" 
+        element={<NewRiffPage songsWithLyrics={songsWithLyrics} setSongsWithLyrics={setSongsWithLyrics} />} 
+      />
+      <Route path="/timer" element={<TimerSelectPage />} />  {/* <-- keep your new route */}
+      <Route 
+        path="/riff/:id" 
+        element={<RiffOffPage songsWithLyrics={songsWithLyrics} setSongsWithLyrics={setSongsWithLyrics} />} 
+      />
+      <Route path="/how-to" element={<HowToPlayPage />} />
+      <Route path="/gameover" element={<GameOverPage />} />
+    </Routes>
+
         </div>
       </AnimatePresence>
 
