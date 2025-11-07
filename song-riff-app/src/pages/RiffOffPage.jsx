@@ -12,6 +12,8 @@ import { Link, useParams, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion'; 
 import { pageVariants, pageTransition } from '../pageAnimations';
 import SongListItem from '../components/SongListItem';
+
+
 import { 
   calculateLyricSimilarity, 
   getSimilarityColor, 
@@ -31,7 +33,8 @@ import './RiffOffPage.css';
  * @param {Function} onLyricClick - Callback when a lyric line is clicked
  * @param {string} selectedLyric - Currently selected lyric line
  */
-const LyricColumn = ({ songTitle, artist, lyrics, songId, onLyricClick, selectedLyric }) => (
+const LyricColumn = ({ songTitle, artist, lyrics, songId, onLyricClick, selectedLyric, isDisabled }) => (
+
   <div className="lyric-column">
     <div className="song-header">
       <h3>{songTitle}</h3>
@@ -79,6 +82,51 @@ const RiffOffPage = ({ songsWithLyrics, setSongsWithLyrics }) => {
   // UI state
   const [isPickerOpen, setIsPickerOpen] = useState(false);
   const [isAdvancing, setIsAdvancing] = useState(false);
+
+  // Timer state
+const [timeLeft, setTimeLeft] = useState(60); // seconds
+const [isTimeUp, setIsTimeUp] = useState(false);
+
+const [roundPoints, setRoundPoints] = useState(0);
+
+
+/**
+ * Effect: Countdown timer logic
+ * Runs every second and sets Time’s Up when it reaches zero
+ */
+useEffect(() => {
+  if (timeLeft === null || isTimeUp) return;
+
+  const timer = setInterval(() => {
+    setTimeLeft(prev => {
+      if (prev <= 1) {
+        clearInterval(timer);
+        setIsTimeUp(true);
+        return 0;
+      }
+      return prev - 1;
+    });
+  }, 1000);
+
+  return () => clearInterval(timer);
+}, [timeLeft, isTimeUp]);
+
+useEffect(() => {
+  if (timeLeft === 0) {
+    navigate('/gameover', { state: { totalScore } });
+  }
+}, [timeLeft, navigate, totalScore]);
+
+/**
+ * Effect: Reset timer when page loads or new round starts
+ */
+// ✅ Only reset when the component mounts (first load), not when time runs out
+useEffect(() => {
+  setTimeLeft(60);
+  setIsTimeUp(false);
+}, []); // <-- empty dependency so it runs only once
+
+
   
   // Mini search state
   const [miniSearchQuery, setMiniSearchQuery] = useState('');
@@ -130,17 +178,28 @@ const RiffOffPage = ({ songsWithLyrics, setSongsWithLyrics }) => {
   const similarity = (selectedLyric1 && selectedLyric2)
     ? calculateLyricSimilarity(selectedLyric1, selectedLyric2)
     : null;
-  /**
-   * Advance to the next round
+
+  useEffect(() => {
+    if (similarity != null) {
+      const pts = similarity >= 10 ? Math.floor(similarity / 10) : 0;
+      setRoundPoints(pts);
+    }
+  }, [similarity]);
+
+
+    /*
+   *advance to the next round
    * Moves right song to left, updates score, resets state
    */
   const handleNextRound = () => {
     if (!rightSong) return;
     
     // Add current round score to total
-    if (similarity != null) {
-      setTotalScore((s) => s + similarity);
-    }
+  // Add points based on similarity (<10%=1, <20%=2...)
+  if (similarity != null) {
+    setTotalScore(prev => prev + roundPoints);
+  }
+
     
     // Trigger advancing animation
     setIsAdvancing(true);
@@ -320,12 +379,16 @@ const RiffOffPage = ({ songsWithLyrics, setSongsWithLyrics }) => {
     >
       <div className="page-content riff-off-page">
         {/* Timer Display*/}
-        {timeLeft !== null && (
-          <div className="timer-overlay">
-            ⏱️ {Math.floor(timeLeft / 60)}:
-            {String(timeLeft % 60).padStart(2, '0')}
-          </div>
-        )}
+    {timeLeft !== null && (
+      <div className="timer-overlay">
+        ⏱️ {Math.floor(timeLeft / 60)}:
+        {String(timeLeft % 60).padStart(2, '0')}
+        <span style={{ marginLeft: '10px', fontWeight: 'bold' }}>
+          ⭐ {totalScore}
+        </span>
+      </div>
+    )}
+
 
         <ProgressTrail count={dotCount} score={totalScore} />
 
@@ -522,17 +585,6 @@ const RiffOffPage = ({ songsWithLyrics, setSongsWithLyrics }) => {
             </div>
           )}
         </div>
-
-        {/*Time's Up Overlay section */}
-        {isTimeUp && (
-          <div className="timesup-overlay">
-            <div className="timesup-box">
-              <h2>⏰ Time’s Up!</h2>
-              <p>Your total score: {totalScore}%</p>
-              <Link to="/timer" className="restart-btn">Play Again</Link>
-            </div>
-          </div>
-        )}
       </div>
     </motion.div>
   );
