@@ -17,6 +17,7 @@ import { pageVariants, pageTransition } from '../pageAnimations';
 import LyricColumn from '../components/LyricColumn';
 import SongPicker from '../components/SongPicker';
 import ProgressTrail from '../components/ProgressTrail';
+import ScoreboardPill from '../components/ScoreboardPill';
 import { useRiffOffGame } from '../hooks/useRiffOffGame';
 import { useSongSearch } from '../hooks/useSongSearch';
 
@@ -97,7 +98,9 @@ const RiffOffPage = ({ songsWithLyrics, setSongsWithLyrics }) => {
       transition={pageTransition}
     >
       {/* Fixed Progress Trail */}
-      <ProgressTrail count={gameState.dotCount} score={gameState.totalScore} />
+      <ProgressTrail count={gameState.dotCount} />
+      {/* Scoreboard pill to the left of Save button */}
+      <ScoreboardPill score={gameState.totalScore} highScore={gameState.totalScore} />
       
       {/* Save Button */}
       <Link to="/home" className="floating-save-button">

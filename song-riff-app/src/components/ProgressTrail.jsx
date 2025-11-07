@@ -14,12 +14,11 @@ import './ProgressTrail.css';
  * ProgressTrail component
  * 
  * @param {number} count - Number of dots to display
- * @param {number} score - Current score percentage
  */
-const ProgressTrail = ({ count = 1, score = 0 }) => {
+const ProgressTrail = ({ count = 1 }) => {
   const r = 8; // radius of each dot
   const padding = 16;
-  const height = 40;
+  const height = 28; // reduced to match scoreboard pill height
   const step = 50; // fixed distance between dots
   const minWidth = 320;
   const width = Math.max(minWidth, padding * 2 + (count - 1) * step, padding * 2 + r * 2);
@@ -49,9 +48,6 @@ const ProgressTrail = ({ count = 1, score = 0 }) => {
             <circle key={`dot-${i}`} cx={p.x} cy={p.y} r={r} className="trail-dot" />
           ))}
         </svg>
-        <div className="score-pill" title="Total score">
-          <span>{score}%</span>
-        </div>
       </div>
     </div>
   );

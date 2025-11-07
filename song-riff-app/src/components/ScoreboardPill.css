@@ -1,0 +1,70 @@
+.scoreboard-pill-wrapper {
+  position: fixed;
+  top: 1.5rem; /* align with Save button vertical position */
+  right: 7.5rem; /* place left of Save button (which is at right:1.5rem) */
+  z-index: 1000;
+}
+
+.scoreboard-pill-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.9rem;
+  border-radius: 9999px;
+  background: linear-gradient(180deg, #1e1e2f, #101018);
+  border: 3px solid #394057;
+  color: #fff;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
+}
+
+.scoreboard-pill-label {
+  color: #f5d742;
+  text-shadow: 0 0 5px #f5d742, 0 0 15px #f5d742;
+}
+
+.scoreboard-pill-value {
+  font-variant-numeric: tabular-nums;
+  color: #f5d742;
+  text-shadow: 0 0 5px #f5d742, 0 0 15px #f5d742;
+}
+
+/* Expanded panel styling reuses original scoreboard look */
+.scoreboard-panel {
+  position: absolute;
+  top: 2.75rem;
+  right: 0;
+  background: linear-gradient(180deg, #1e1e2f, #101018);
+  border: 3px solid #394057;
+  border-radius: 12px;
+  width: 220px;
+  padding: 1rem;
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
+  text-align: center;
+  color: white;
+}
+
+.scoreboard-title {
+  font-size: 1.2rem;
+  letter-spacing: 2px;
+  color: #f5d742;
+  margin-bottom: 0.5rem;
+  text-shadow: 0 0 5px #f5d742, 0 0 15px #f5d742;
+}
+
+.scoreboard-box {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.scoreboard-number {
+  font-size: 2rem;
+  font-weight: 800;
+}
+
+.scoreboard-high {
+  font-size: 0.85rem;
+  opacity: 0.85;
+}
