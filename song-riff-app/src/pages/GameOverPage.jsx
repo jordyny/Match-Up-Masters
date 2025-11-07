@@ -37,6 +37,17 @@ const GameOverPage = () => {
         }}>
           Play Again
         </Link>
+
+        <Link to="/scoreboard" style={{ 
+          padding: "10px 20px",
+          background: "rgba(255,255,255,0.2)",
+          borderRadius: "8px",
+          color: "white",
+          textDecoration: "none",
+          marginLeft: "15px"
+        }}>
+          View Scoreboard
+        </Link>
       </div>
     </div>
   );
