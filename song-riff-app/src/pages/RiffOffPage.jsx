@@ -12,12 +12,13 @@ import { Link, useParams, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion'; 
 import { pageVariants, pageTransition } from '../pageAnimations';
 import SongListItem from '../components/SongListItem';
+
+
 import { 
   calculateLyricSimilarity, 
   getSimilarityColor, 
   fetchSongWithLyrics 
 } from '../services/lyricsService';
-
 import './RiffOffPage.css';
 
 /**
@@ -32,7 +33,8 @@ import './RiffOffPage.css';
  * @param {Function} onLyricClick - Callback when a lyric line is clicked
  * @param {string} selectedLyric - Currently selected lyric line
  */
-const LyricColumn = ({ songTitle, artist, lyrics, songId, onLyricClick, selectedLyric }) => (
+const LyricColumn = ({ songTitle, artist, lyrics, songId, onLyricClick, selectedLyric, isDisabled }) => (
+
   <div className="lyric-column">
     <div className="song-header">
       <h3>{songTitle}</h3>
@@ -43,8 +45,8 @@ const LyricColumn = ({ songTitle, artist, lyrics, songId, onLyricClick, selected
         {lyrics.map((line, index) => (
           <p
             key={index}
-            className={`lyric-line ${selectedLyric === line ? 'selected' : ''}`}
-            onClick={() => onLyricClick(line, songId)}
+            className={`lyric-line ${selectedLyric === line ? 'selected' : ''} ${isDisabled ? 'disabled' : ''}`}
+            onClick={() => !isDisabled && onLyricClick(line, songId)}
           >
             {line}
           </p>
@@ -80,6 +82,51 @@ const RiffOffPage = ({ songsWithLyrics, setSongsWithLyrics }) => {
   // UI state
   const [isPickerOpen, setIsPickerOpen] = useState(false);
   const [isAdvancing, setIsAdvancing] = useState(false);
+
+  // Timer state
+const [timeLeft, setTimeLeft] = useState(60); // seconds
+const [isTimeUp, setIsTimeUp] = useState(false);
+
+const [roundPoints, setRoundPoints] = useState(0);
+
+
+/**
+ * Effect: Countdown timer logic
+ * Runs every second and sets Time’s Up when it reaches zero
+ */
+useEffect(() => {
+  if (timeLeft === null || isTimeUp) return;
+
+  const timer = setInterval(() => {
+    setTimeLeft(prev => {
+      if (prev <= 1) {
+        clearInterval(timer);
+        setIsTimeUp(true);
+        return 0;
+      }
+      return prev - 1;
+    });
+  }, 1000);
+
+  return () => clearInterval(timer);
+}, [timeLeft, isTimeUp]);
+
+useEffect(() => {
+  if (timeLeft === 0) {
+    navigate('/gameover', { state: { totalScore } });
+  }
+}, [timeLeft, navigate, totalScore]);
+
+/**
+ * Effect: Reset timer when page loads or new round starts
+ */
+// ✅ Only reset when the component mounts (first load), not when time runs out
+useEffect(() => {
+  setTimeLeft(60);
+  setIsTimeUp(false);
+}, []); // <-- empty dependency so it runs only once
+
+
   
   // Mini search state
   const [miniSearchQuery, setMiniSearchQuery] = useState('');
@@ -131,17 +178,28 @@ const RiffOffPage = ({ songsWithLyrics, setSongsWithLyrics }) => {
   const similarity = (selectedLyric1 && selectedLyric2)
     ? calculateLyricSimilarity(selectedLyric1, selectedLyric2)
     : null;
-  /**
-   * Advance to the next round
+
+  useEffect(() => {
+    if (similarity != null) {
+      const pts = similarity >= 10 ? Math.floor(similarity / 10) : 0;
+      setRoundPoints(pts);
+    }
+  }, [similarity]);
+
+
+    /*
+   *advance to the next round
    * Moves right song to left, updates score, resets state
    */
   const handleNextRound = () => {
     if (!rightSong) return;
     
     // Add current round score to total
-    if (similarity != null) {
-      setTotalScore((s) => s + similarity);
-    }
+  // Add points based on similarity (<10%=1, <20%=2...)
+  if (similarity != null) {
+    setTotalScore(prev => prev + roundPoints);
+  }
+
     
     // Trigger advancing animation
     setIsAdvancing(true);
@@ -243,6 +301,7 @@ const RiffOffPage = ({ songsWithLyrics, setSongsWithLyrics }) => {
    * @param {number} songId - Song identifier (1 or 2)
    */
   const handleLyricClick = (lyric, songId) => {
+    if (isTimeUp) return; // Disable clicks when time’s up
     if (songId === 1) {
       setSelectedLyric1(lyric);
     } else if (songId === 2) {
@@ -254,6 +313,7 @@ const RiffOffPage = ({ songsWithLyrics, setSongsWithLyrics }) => {
    * Clear both selected lyrics
    */
   const clearSelection = () => {
+    if (isTimeUp) return;
     setSelectedLyric1(null);
     setSelectedLyric2(null);
   };
@@ -273,8 +333,8 @@ const RiffOffPage = ({ songsWithLyrics, setSongsWithLyrics }) => {
     const height = 50;
     const padding = 12;
     const r = 8;
-    const step = 50; // fixed distance between dots
-    const minWidth = 320; // restore original visual footprint
+    const step = 50;
+    const minWidth = 320;
     const width = Math.max(minWidth, padding * 2 + (count - 1) * step, padding * 2 + r * 2);
     const points = Array.from({ length: count }, (_, i) => ({
       x: Math.round(padding + i * step),
@@ -317,98 +377,112 @@ const RiffOffPage = ({ songsWithLyrics, setSongsWithLyrics }) => {
       variants={pageVariants}
       transition={pageTransition}
     >
-    <div className="page-content riff-off-page">
-      <ProgressTrail count={dotCount} score={totalScore} />
-
-      {/* --- for future add save button --- */}
-      <Link to="/home" className="floating-save-button">
-        Save
-      </Link>
-
-        {/* Page Header (Back arrow and Title) */}
-      <div className="riff-header">
-        <Link to="/new" className="back-link">←</Link>
-        <h2>{leftSong ? leftSong.title : 'Song'} {rightSong ? `& ${rightSong.title}` : ''}</h2>
+      <div className="page-content riff-off-page">
+        {/* Timer Display*/}
+    {timeLeft !== null && (
+      <div className="timer-overlay">
+        ⏱️ {Math.floor(timeLeft / 60)}:
+        {String(timeLeft % 60).padStart(2, '0')}
+        <span style={{ marginLeft: '10px', fontWeight: 'bold' }}>
+          ⭐ {totalScore}
+        </span>
       </div>
-{/* Chosen Lyrics + Next Round (row) */}
-      <div className="chosen-lyrics-row">
-        <div className="chosen-lyrics-box">
-          <div className="chosen-header">
-            <h3>Chosen Lyrics</h3>
-            {similarity != null && (
-              <div className={`similarity-badge ${similarityColor}`} title="Similarity">
-                <span>{similarity}% word similarity</span>
-              </div>
-            )}
-            <button onClick={clearSelection} className="clear-button">
-              Clear
-            </button>
-          </div>
-          <div className="chosen-lyrics-content">
-            <p className="chosen-lyric">
-              {selectedLyric1 || 'Select a lyric from song 1...'}
-            </p>
-            <p className="chosen-lyric">
-              {selectedLyric2 || 'Select a lyric from song 2...'}
-            </p>
-            
-          </div>
+    )}
+
+
+        <ProgressTrail count={dotCount} score={totalScore} />
+
+        <Link to="/home" className="floating-save-button">Save</Link>
+
+        <div className="riff-header">
+          <Link to="/new" className="back-link">←</Link>
+          <h2>{leftSong ? leftSong.title : 'Song'} {rightSong ? `& ${rightSong.title}` : ''}</h2>
         </div>
-        <AnimatePresence>
-          {selectedLyric1 && selectedLyric2 && (
-            <motion.button
-              key="next-round"
-              className="next-round-button"
-              onClick={handleNextRound}
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: 8 }}
-              transition={{ duration: 0.2 }}
-              style = {{whiteSpace:'nowrap'}}
-            >
-              Next Round →
-            </motion.button>
-          )}
-        </AnimatePresence>
-      </div>
-     {/* Container for the two lyric columns */}
-      <div className={`riff-container ${isAdvancing ? 'advancing' : ''}`}>
-        {leftSong && (
-          <div className="column-wrapper left-col">
-            <LyricColumn
-              songTitle={leftSong.title}
-              artist={leftSong.artist}
-              lyrics={leftLyrics}
-              songId={1}
-              onLyricClick={handleLyricClick}
-              selectedLyric={selectedLyric1}
-            />
-          </div>
-        )}
 
-        {/* Right column: either selected song or add box */}
-        {rightSong ? (
-          <div className="column-wrapper right-col">
-            <LyricColumn
-              songTitle={rightSong.title}
-              artist={rightSong.artist}
-              lyrics={rightLyrics}
-              songId={2}
-              onLyricClick={handleLyricClick}
-              selectedLyric={selectedLyric2}
-            />
+        <div className="chosen-lyrics-row">
+          <div className="chosen-lyrics-box">
+            <div className="chosen-header">
+              <h3>Chosen Lyrics</h3>
+              {similarity != null && (
+                <div className={`similarity-badge ${similarityColor}`} title="Similarity">
+                  <span>{similarity}% word similarity</span>
+                </div>
+              )}
+              <button onClick={clearSelection} className="clear-button" disabled={isTimeUp}>
+                Clear
+              </button>
+            </div>
+            <div className="chosen-lyrics-content">
+              <p className="chosen-lyric">
+                {selectedLyric1 || 'Select a lyric from song 1...'}
+              </p>
+              <p className="chosen-lyric">
+                {selectedLyric2 || 'Select a lyric from song 2...'}
+              </p>
+            </div>
           </div>
-        ) : (
-          <div className="column-wrapper right-col">
-            <div className="lyric-column add-song-box">
-              <div className="add-song-content">
-                <button className="add-song-button" onClick={() => setIsPickerOpen(v => !v)}>+
-                </button>
-              </div>
-            {isPickerOpen && (
-              <div className="mini-search">
-                <div className="mini-search-inner">
-                  {/* Search Form */}
+
+          <AnimatePresence>
+            {selectedLyric1 && selectedLyric2 && !isTimeUp && (
+              <motion.button
+                key="next-round"
+                className="next-round-button"
+                onClick={handleNextRound}
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 8 }}
+                transition={{ duration: 0.2 }}
+                style={{ whiteSpace: 'nowrap' }}
+              >
+                Next Round →
+              </motion.button>
+            )}
+          </AnimatePresence>
+        </div>
+
+        <div className={`riff-container ${isAdvancing ? 'advancing' : ''}`}>
+          {leftSong && (
+            <div className="column-wrapper left-col">
+              <LyricColumn
+                songTitle={leftSong.title}
+                artist={leftSong.artist}
+                lyrics={leftLyrics}
+                songId={1}
+                onLyricClick={handleLyricClick}
+                selectedLyric={selectedLyric1}
+                isDisabled={isTimeUp}
+              />
+            </div>
+          )}
+
+          {rightSong ? (
+            <div className="column-wrapper right-col">
+              <LyricColumn
+                songTitle={rightSong.title}
+                artist={rightSong.artist}
+                lyrics={rightLyrics}
+                songId={2}
+                onLyricClick={handleLyricClick}
+                selectedLyric={selectedLyric2}
+                isDisabled={isTimeUp}
+              />
+            </div>
+          ) : (
+            <div className="column-wrapper right-col">
+              <div className="lyric-column add-song-box">
+                <div className="add-song-content">
+                  <button
+                    className="add-song-button"
+                    onClick={() => !isTimeUp && setIsPickerOpen(v => !v)}
+                    disabled={isTimeUp}
+                  >
+                    +
+                  </button>
+                </div>
+                {isPickerOpen && (
+                  <div className="mini-search">
+                    <div className="mini-search-inner">
+                      {/* Search Form */}
                   <form onSubmit={handleMiniSearch} style={{ padding: '1rem', borderBottom: '1px solid #333' }}>
                     <div style={{ display: 'flex', gap: '0.5rem' }}>
                       <input
@@ -448,8 +522,8 @@ const RiffOffPage = ({ songsWithLyrics, setSongsWithLyrics }) => {
                     )}
                   </form>
 
-                  <div className="mini-song-list">
-                    {/* Show search results if available */}
+                      <div className="mini-song-list">
+                        {/* Show search results if available */}
                     {miniSearchResults.length > 0 ? (
                       <>
                         <p style={{ padding: '0.5rem 1rem', color: '#888', fontSize: '0.85rem', fontWeight: 'bold' }}>
@@ -478,23 +552,23 @@ const RiffOffPage = ({ songsWithLyrics, setSongsWithLyrics }) => {
                           Previously Loaded Songs:
                         </p>
                         {Object.values(songsWithLyrics)
-                          .filter(s => s.id !== leftSongId)
-                          .map(s => (
-                            <div
-                              key={s.id}
-                              className="mini-song-item"
-                              onClick={() => {
-                                setRightSongId(s.id);
-                                setSelectedLyric2(null);
-                                setIsPickerOpen(false);
-                                setMiniSearchQuery('');
+                              .filter(s => s.id !== leftSongId)
+                              .map(s => (
+                                <div
+                                  key={s.id}
+                                  className="mini-song-item"
+                                  onClick={() => {
+                                    setRightSongId(s.id);
+                                    setSelectedLyric2(null);
+                                    setIsPickerOpen(false);
+                                    setMiniSearchQuery('');
                                 setMiniSearchResults([]);
                               }}
-                            >
-                              <SongListItem title={s.title} artist={s.artist} duration="" />
-                            </div>
-                          ))}
-                      </>
+                                >
+                                  <SongListItem title={s.title} artist={s.artist} duration="" />
+                                </div>
+                              ))}
+                          </>
                     )}
 
                     {/* Show message if no results and no previously loaded songs */}
@@ -504,14 +578,14 @@ const RiffOffPage = ({ songsWithLyrics, setSongsWithLyrics }) => {
                       </p>
                     )}
                   </div>
-                </div>
+                    </div>
+                  </div>
+                )}
               </div>
-            )}
             </div>
-          </div>
-        )}
+          )}
+        </div>
       </div>
-    </div>
     </motion.div>
   );
 };

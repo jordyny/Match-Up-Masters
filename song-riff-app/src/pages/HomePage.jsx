@@ -6,7 +6,6 @@ import './HomePage.css';
 
 const HomePage = () => {
   return (
-    // for animation
     <motion.div
       className="page-container" 
       initial="initial"
@@ -15,11 +14,14 @@ const HomePage = () => {
       variants={pageVariants}
       transition={pageTransition}
     >
-    <div className="page-content home-page">
+      <div className="page-content home-page">
         {/* Navigation buttons */}
-      <Button to="/new">New Riff</Button>
-      <Button to="/home">Past Riffs</Button>
-    </div>
+        {/* Go to the Timer Select page after Home */}
+        <Button to="/timer">New Riff</Button>
+
+        {/* Past Riffs can stay as is or go to a new page later */}
+        <Button to="/home">Past Riffs</Button>
+      </div>
     </motion.div>
   );
 };
