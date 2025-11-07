@@ -7,7 +7,7 @@
  * @component
  */
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { pageVariants, pageTransition } from '../pageAnimations';
@@ -22,6 +22,18 @@ const NewRiffPage = ({ songsWithLyrics, setSongsWithLyrics }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const navigate = useNavigate();
+  const [dots, setDots] = useState('');
+
+  useEffect(() => {
+    if (!loading) {
+      setDots('');
+      return;
+    }
+    const id = setInterval(() => {
+      setDots(prev => (prev.length >= 3 ? '' : prev + '.'));
+    }, 300);
+    return () => clearInterval(id);
+  }, [loading]);
 
   /**
    * Handle song search form submission
@@ -125,7 +137,7 @@ const NewRiffPage = ({ songsWithLyrics, setSongsWithLyrics }) => {
                   fontWeight: 'bold',
                 }}
               >
-                {loading ? 'Searching...' : 'Search'}
+                {loading ? `Searching${dots}` : 'Search'}
               </button>
             </div>
           </form>
