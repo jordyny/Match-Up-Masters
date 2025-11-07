@@ -1,17 +1,19 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { pageVariants, pageTransition } from '../pageAnimations';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import './TimerSelectPage.css';
 
 const TimerSelectPage = () => {
-const navigate = useNavigate();
+  const navigate = useNavigate();
+  const [selectedTime, setSelectedTime] = useState(null); // ✅ store selected time
 
-  // Handle timer selection
-const handleSelect = (seconds) => {
-  sessionStorage.setItem('riff_duration', seconds); // ✅ store selection
-  navigate('/riff/1', { state: { duration: seconds } });
-};
+  const { id } = useParams(); // Example: id = "2332455"
+
+  const handleSelect = (time) => {
+    localStorage.setItem("selectedDuration", time); // ✅ Store timer globally
+    navigate('/new'); // go to song selection
+  };
 
 
   return (

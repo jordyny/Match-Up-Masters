@@ -53,34 +53,35 @@ const NewRiffPage = ({ songsWithLyrics, setSongsWithLyrics }) => {
    * 
    * @param {Object} song - Selected song object
    */
-  const handleSongSelect = async (song) => {
-    // Check if we already have lyrics for this song (avoid redundant API calls)
-    if (songsWithLyrics[song.id]) {
-      navigate(`/riff/${song.id}`);
-      return;
-    }
+const handleSongSelect = async (song) => {
+  const duration = parseInt(localStorage.getItem("selectedDuration")) || 60;
 
-    setLoading(true);
-    setError('');
+  // If lyrics already exist in cache, navigate immediately
+  if (songsWithLyrics[song.id]) {
+    navigate(`/riff/${song.id}`, { state: { duration } });
+    return;
+  }
 
-    try {
-      // Fetch and parse lyrics using service layer
-      const songWithLyrics = await fetchSongWithLyrics(song);
-      
-      // Store song with lyrics in app state
-      setSongsWithLyrics(prev => ({
-        ...prev,
-        [song.id]: songWithLyrics
-      }));
+  setLoading(true);
+  setError('');
 
-      // Navigate to riff page with this song
-      navigate(`/riff/${song.id}`);
-    } catch (err) {
-      setError(`Failed to load lyrics: ${err.message}`);
-    } finally {
-      setLoading(false);
-    }
-  };
+  try {
+    // Fetch and save lyrics
+    const songWithLyrics = await fetchSongWithLyrics(song);
+    setSongsWithLyrics(prev => ({
+      ...prev,
+      [song.id]: songWithLyrics
+    }));
+
+    // Now navigate to riff page with duration included
+    navigate(`/riff/${song.id}`, { state: { duration } });
+
+  } catch (err) {
+    setError(`Failed to load lyrics: ${err.message}`);
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <motion.div

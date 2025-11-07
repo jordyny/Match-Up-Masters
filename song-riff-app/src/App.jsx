@@ -18,6 +18,7 @@ import RiffOffPage from './pages/RiffOffPage';
 import HowToPlayPage from './pages/HowToPlayPage';
 import TimerSelectPage from './pages/TimerSelectPage';
 import GameOverPage from './pages/GameOverPage';
+import ScoreboardPage from "./pages/ScoreboardPage";
 
 function App() {
   // Authentication state - stores logged in user's email
@@ -38,8 +39,9 @@ function App() {
    */
   const handleLogin = (email) => {
     setUserEmail(email);
-    navigate('/home');
+    navigate('/how-to'); // Go to How to Play after login
   };
+
   
   /**
    * Handle user logout
@@ -74,6 +76,7 @@ function App() {
       />
       <Route path="/how-to" element={<HowToPlayPage />} />
       <Route path="/gameover" element={<GameOverPage />} />
+      <Route path="/scoreboard" element={<ScoreboardPage />} />
     </Routes>
 
         </div>
