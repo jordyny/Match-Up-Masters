@@ -3,6 +3,7 @@ const router = express.Router();
 
 //adds functions from geniusAPI file 
 const { searchSong, searchSongs, getLyricsFromUrl } = require('../services/geniusAPI');
+const { searchTrack } = require('../services/spotifyAPI');
 
 // Search for songs (returns list of matches)
 router.get('/search', async (req, res) => {
@@ -22,6 +23,8 @@ router.get('/search', async (req, res) => {
 // Get lyrics for a specific song by URL
 router.get('/fetch', async (req, res) => {
   const songUrl = req.query.url;
+  const songTitle = req.query.title;
+  const artist = req.query.artist;
 
   if (!songUrl) return res.status(400).json({ error: 'Missing url parameter' });
 
@@ -29,7 +32,16 @@ router.get('/fetch', async (req, res) => {
     const lyrics = await getLyricsFromUrl(songUrl);
     if (!lyrics) return res.status(500).json({ error: 'Could not fetch lyrics' });
 
-    res.json({ lyrics });
+    // Search for Spotify track if we have title and artist
+    let spotifyTrack = null;
+    if (songTitle && artist) {
+      spotifyTrack = await searchTrack(songTitle, artist);
+    }
+
+    res.json({ 
+      lyrics,
+      spotify: spotifyTrack
+    });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Internal Server Error' });

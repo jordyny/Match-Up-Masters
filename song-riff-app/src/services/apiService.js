@@ -54,17 +54,25 @@ export async function searchSongs(query) {
  * Fetch lyrics for a specific song by URL
  * 
  * @param {string} songUrl - The Genius URL for the song
- * @returns {Promise<string>} - The song lyrics as a string
+ * @param {string} title - Song title (optional, for Spotify search)
+ * @param {string} artist - Artist name (optional, for Spotify search)
+ * @returns {Promise<Object>} - Object with lyrics and spotify data
  */
-export async function fetchLyrics(songUrl) {
+export async function fetchLyrics(songUrl, title = '', artist = '') {
   if (!songUrl) {
     throw new Error('Song URL is required');
   }
   
-  const url = `${API_BASE_URL}/lyrics/fetch?url=${encodeURIComponent(songUrl)}`;
+  let url = `${API_BASE_URL}/lyrics/fetch?url=${encodeURIComponent(songUrl)}`;
+  if (title) url += `&title=${encodeURIComponent(title)}`;
+  if (artist) url += `&artist=${encodeURIComponent(artist)}`;
+  
   const data = await fetchWithErrorHandling(url);
   
-  return data.lyrics || '';
+  return {
+    lyrics: data.lyrics || '',
+    spotify: data.spotify || null
+  };
 }
 
 /**
