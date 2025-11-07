@@ -1,37 +1,23 @@
+
+//dummy File class for Node.js so it works well in server environment
+if (typeof File === 'undefined') global.File = class {};
+
 const express = require('express');
-const axios = require('axios');
 const cors = require('cors');
 const dotenv = require('dotenv');
+dotenv.config();
 
-// loads variables from env file 
-dotenv.config() 
-const GENIUS_API_KEY = process.env.GENIUS_API_KEY
-//make web server with Express 
+//imports lyrics route, lyricsRoute has all logic needed to search songs and get lyrics 
+const lyricsRoute = require('./routes/lyrics');
+
+//creates app and allows for cross origin ports 
 const app = express();
-const PORT = process.env.PORT || 5000;
-
-//allows different browser ports to run at the same time 
 app.use(cors());
 app.use(express.json());
 
-console.log('API starts with:', GENIUS_API_KEY.slice(0, 10));
+//connects lyrics route file to server, any request to /lyrics will go to that file
+//example GET request http://localhost:5050/lyrics?q=hello will go to the lyrics route 
+app.use('/lyrics', lyricsRoute);
 
-async function testGeniusAPI() {
-    const URL = 'https://api.genius.com';
-    const test = "Hello"
-
-    try {
-        const response = await axios.get(`${URL}/search`, {
-            headers: { Authorization: `Bearer ${GENIUS_API_KEY}` },
-            params: {q: test} ,
-        }
-        );
-        const hits = response.data.response.hits;
-        console.log("API call suceess");
-        console.log("First title:", hits[0]?.result?.full_title);
-    } catch (error) {
-        console.log("API key failed")
-    }
-}
-
-testGeniusAPI();
+const PORT = process.env.PORT || 5050;
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

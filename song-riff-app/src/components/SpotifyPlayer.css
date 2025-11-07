@@ -1,0 +1,19 @@
+.spotify-player-container {
+  margin: 1rem 0;
+}
+
+.spotify-unavailable {
+  margin: 1rem 0;
+  padding: 1rem;
+  text-align: center;
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 8px;
+  border: 1px dashed rgba(255, 255, 255, 0.1);
+}
+
+.spotify-unavailable p {
+  margin: 0;
+  color: #666;
+  font-size: 0.85rem;
+  font-style: italic;
+}

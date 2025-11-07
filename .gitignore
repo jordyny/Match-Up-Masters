@@ -22,12 +22,9 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+# macOS files
+.DS_Store
 
-# Environmental variables 
-node_modules/
-**/node_modules/
-.env
-dist
-
-.env
+.DS_Store
+*/.DS_Store
 server/.env

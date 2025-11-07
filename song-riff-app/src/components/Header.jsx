@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { FaUserCircle, FaHome } from 'react-icons/fa';
+import {FiHome, FiUser, FiArchive, FiHelpCircle} from 'react-icons/fi';
 import './Header.css';
 
 const Header = ({ userEmail, onLogout }) => {
@@ -12,7 +12,7 @@ const Header = ({ userEmail, onLogout }) => {
       
       {/* Profile Icon and Dropdown */}
       <div className="profile-container">
-        <FaUserCircle 
+        <FiUser
           className="header-icon" 
           onClick={() => setDropdownVisible(!isDropdownVisible)} 
         />
@@ -31,8 +31,17 @@ const Header = ({ userEmail, onLogout }) => {
 
       {/* Home Icon */}
       <Link to="/home">
-          <FaHome className="header-icon" />
+          <FiHome className="header-icon" />
       </Link>
+
+      {/* How to Play Icon */}
+      <Link to="/how-to">
+          <FiHelpCircle className="header-icon" />
+      </Link>
+
+      
+
+      
 
     </div>
   );

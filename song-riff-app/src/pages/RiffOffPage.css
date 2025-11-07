@@ -52,35 +52,62 @@
 }
 
 .riff-header h2 {
-    font-size: 1.25rem;
+    font-size: 2rem;
+    font-weight: 900;
+    color: #ffffff;
+    text-shadow: 0 0 6px rgba(255, 255, 255, 0.6), 0 0 12px rgba(255, 255, 255, 0.35);
 }
 
-/* --- CHOSEN LYRICS BOX STYLES --- */
-.chosen-lyrics-box {
+/* --- ACTION BAR STYLES --- */
+.action-bar {
   width: 100%;
   max-width: 800px;
-  margin: 0 auto 1.5rem auto;
-  padding: 1rem 1.5rem;
-  border-radius: 12px;
+  margin: 0 auto 1.25rem auto;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  justify-content: center;
+}
 
-  /* Apply the blur effect */
+.next-round-button {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  padding: 0.6rem 1rem;
+  border-radius: 6px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.15s ease, background-color 0.2s ease;
+}
+
+.next-round-button:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+  transform: translateX(2px);
+}
+
+/* Selected Lyric Display (above each column) */
+.selected-lyric-display {
+  width: 100%;
+  padding: 1rem 1.5rem;
+  margin-bottom: 1rem;
+  border-radius: 12px;
   background-color: rgba(255, 255, 255, 0.1);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
   border: 1px solid rgba(255, 255, 255, 0.2);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-}
-
-.chosen-header {
+  min-height: 60px;
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  margin-bottom: 0.75rem;
 }
 
-.chosen-header h3 {
-  font-size: 1.25rem;
-  font-weight: 700;
+.selected-lyric-display p {
+  margin: 0;
+  color: #fff;
+  font-size: 1rem;
+  line-height: 1.5;
+  text-align: center;
+  width: 100%;
 }
 
 .clear-button {
@@ -99,25 +126,42 @@
   background: rgba(255, 255, 255, 0.25);
 }
 
-.chosen-lyrics-content {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
+/* Similarity badge */
+.similarity-badge {
+  height: 36px;
+  padding: 0 14px;
+  border-radius: 6px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  color: #fff;
 }
 
-/* ---  CHOSEN LYRIC (INSIDE BOX) STYLES --- */
-.chosen-lyric {
-  background-color: rgba(255, 255, 255, 0.05); /* Make it slightly brighter */
-  padding: 0.75rem 1rem;
-  border-radius: 8px;
-  text-align: left;
-  font-style: italic;
-  color: #e0e0e0; /* Brighter text */
-  min-height: 2.5rem;
-  display: flex;
-  align-items: center;
-  border-left: 3px solid #1DB954;
+.similarity-badge span {
+  color: #fff;
+  font-size: 0.9rem;
+  white-space: nowrap;
 }
+
+.similarity-badge.neutral {
+  background: rgba(255, 255, 255, 0.2);
+  color: #fff;
+}
+
+.similarity-badge.red {
+  background: #ef4444;
+}
+.similarity-badge.orange {
+  background: #f59e0b;
+}
+.similarity-badge.yellow {
+  background: #facc15;
+}
+.similarity-badge.green {
+  background: #22c55e;
+}
+
 
 .riff-container {
     display: grid;
@@ -125,8 +169,22 @@
     gap: 1rem;
     width: 100%;
     flex-grow: 1;
-    overflow-y: auto;
+    overflow: visible;
     min-height: 300px;
+    position: relative; /* needed for FloatingSpotifyPlayer absolute positioning */
+  }
+
+.column-wrapper {
+  transition: transform 250ms ease, opacity 250ms ease;
+}
+
+.riff-container.advancing .left-col {
+  transform: translateX(-30%);
+  opacity: 0;
+}
+
+.riff-container.advancing .right-col {
+  transform: translateX(-55%);
 }
 
 /* ---  LYRIC COLUMN STYLES --- */
@@ -143,6 +201,77 @@
     -webkit-backdrop-filter: blur(10px);
     border: 1px solid rgba(255, 255, 255, 0.2);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+/* Add song placeholder box */
+.add-song-box {
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: visible; /* allow popup to escape */
+}
+
+.add-song-content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  min-height: 240px;
+}
+
+.add-song-button {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.15);
+  color: #fff;
+  font-size: 2rem;
+  font-weight: 800;
+  cursor: pointer;
+  transition: transform 0.15s ease, background 0.15s ease;
+}
+
+.add-song-button:hover {
+  transform: scale(1.06);
+  background: rgba(255, 255, 255, 0.25);
+}
+
+/* Mini search popup near the + button */
+.mini-search {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  z-index: 10000;
+}
+
+.mini-search-inner {
+  width: 360px;
+  max-height: 420px;
+  overflow: hidden;
+  border-radius: 12px;
+  background-color: rgba(40, 40, 40, 0.8);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+  padding: 0.75rem;
+}
+
+.mini-song-list {
+  margin-top: 0.5rem;
+  max-height: 320px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.mini-song-item {
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
 }
 
 /* ---   SONG HEADER STYLES --- */
@@ -187,6 +316,18 @@
     padding-top: 0.5rem;
 }
 
+.lyrics.no-lyrics {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+}
+
+.no-lyrics-text {
+  color: #b3b3b3;
+  font-style: italic;
+}
+
 .lyric-line {
     font-size: 0.9rem;
     margin-bottom: 0.5rem;
@@ -200,4 +341,69 @@
     transform: scale(1.5);
     font-weight: 900;
     color: #ffffff;
+}
+
+/* Selected lyric state */
+.lyric-line.selected {
+  /* Highlights the selected lyric with transparent box, removed this to add glow effect */
+  /*background-color: rgba(255, 255, 255, 0.08);*/
+  
+  border-left: 5px solid #1DB954;
+  padding-left: 0.5rem;
+  font-weight: 900;
+  font-size: larger;
+  filter: drop-shadow(0 0 4px rgba(255, 255, 255, 0.7));
+}
+
+.timer-overlay {
+  position: fixed;
+  top: 80px;
+  right: 40px;
+  background: rgba(0, 0, 0, 0.75);
+  color: white;
+  font-size: 1.1rem;
+  padding: 10px 14px;
+  border-radius: 8px;
+  z-index: 900;
+}
+
+
+.lyric-line.disabled {
+  pointer-events: none;
+  opacity: 0.4;
+}
+.page-content.riff-off-page {
+  position: relative;
+  z-index: 1;
+}
+
+.timesup-overlay {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background-color: rgba(0,0,0,0.85);
+  color: white;
+  z-index: 99999; /* 🔥 raise it way above everything else */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.timesup-box {
+  text-align: center;
+  background-color: #222;
+  padding: 2rem;
+  border-radius: 10px;
+  box-shadow: 0 0 25px rgba(255,255,255,0.2);
+}
+
+.restart-btn {
+  margin-top: 1rem;
+  background-color: #6200ea;
+  color: white;
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 6px;
+  font-weight: bold;
+  text-decoration: none;
 }

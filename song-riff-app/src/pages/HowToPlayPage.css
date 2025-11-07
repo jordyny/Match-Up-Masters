@@ -1,0 +1,49 @@
+.how-to-page {
+  justify-content: flex-start;
+  gap: 1.5rem;
+  padding: 2rem 1.5rem;
+}
+
+.how-to-title {
+  font-size: 1.5rem;
+  font-weight: 800;
+}
+
+.info-box {
+  width: 100%;
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 1rem 1.5rem;
+  border-radius: 12px;
+  background-color: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  text-align: left;
+}
+
+.info-list {
+  padding-left: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.info-list li {
+  line-height: 1.5;
+  color: #e0e0e0;
+}
+
+.info-notes {
+  margin-top: 1rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
+  padding-top: 0.75rem;
+  color: #cccccc;
+}
+
+.info-notes strong {
+  color: #ffffff;
+}
+
+
