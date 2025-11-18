@@ -16,7 +16,7 @@ import { searchForSongs, fetchSongWithLyrics } from '../services/lyricsService';
 import './NewRiffPage.css';
 
 const NewRiffPage = ({ songsWithLyrics, setSongsWithLyrics }) => {
-  // Component state
+  // Component state for search input, results, loading feedback, and error display
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -24,6 +24,7 @@ const NewRiffPage = ({ songsWithLyrics, setSongsWithLyrics }) => {
   const navigate = useNavigate();
   const [dots, setDots] = useState('');
 
+  // Animate trailing dots in the "Searching" label while an API request is in flight
   useEffect(() => {
     if (!loading) {
       setDots('');
@@ -41,6 +42,7 @@ const NewRiffPage = ({ songsWithLyrics, setSongsWithLyrics }) => {
    * 
    * @param {Event} e - Form submit event
    */
+  // Submit handler that calls the lyrics service to search songs by query
   const handleSearch = async (e) => {
     e.preventDefault();
     if (!searchQuery.trim()) return;
@@ -65,6 +67,7 @@ const NewRiffPage = ({ songsWithLyrics, setSongsWithLyrics }) => {
    * 
    * @param {Object} song - Selected song object
    */
+  // When a song is chosen from results, ensure lyrics are loaded and cache them before navigating
   const handleSongSelect = async (song) => {
     // Check if we already have lyrics for this song (avoid redundant API calls)
     if (songsWithLyrics[song.id]) {
@@ -103,6 +106,7 @@ const NewRiffPage = ({ songsWithLyrics, setSongsWithLyrics }) => {
       variants={pageVariants}
       transition={pageTransition}
     >
+      {/* Main container for the search form and results list */}
       <div className="page-content new-riff-page">
         <div className="top-section">
           {/* Search Form */}

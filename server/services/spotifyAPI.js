@@ -1,8 +1,8 @@
 /**
- * Spotify API Service
- * 
- * Handles authentication and track searching with Spotify Web API
- * Uses Client Credentials flow (no user login required)
+ * Spotify API service.
+ *
+ * Handles authentication and track search using the Spotify Web API.
+ * Uses the Client Credentials flow so no user login is required.
  */
 
 const axios = require('axios');
@@ -14,8 +14,12 @@ let accessToken = null;
 let tokenExpiry = null;
 
 /**
- * Get Spotify access token using Client Credentials flow
- * Caches token until it expires
+ * Get Spotify access token using Client Credentials flow.
+ *
+ * Caches the token in memory until shortly before it expires to avoid
+ * unnecessary authentication requests.
+ *
+ * @returns {Promise<string>} A valid bearer token for Spotify.
  */
 async function getAccessToken() {
   // Return cached token if still valid
@@ -50,11 +54,11 @@ async function getAccessToken() {
 }
 
 /**
- * Search for a track on Spotify
+ * Search for a track on Spotify.
  * 
- * @param {string} songTitle - Title of the song
- * @param {string} artist - Artist name
- * @returns {Object|null} - Spotify track object with id and preview_url, or null if not found
+ * @param {string} songTitle - Title of the song.
+ * @param {string} artist - Artist name.
+ * @returns {Promise<Object|null>} Simplified Spotify track object or null if not found.
  */
 async function searchTrack(songTitle, artist) {
   try {
