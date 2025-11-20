@@ -17,6 +17,19 @@
   border-radius: 8px;
 }
 
+.song-main {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.song-album-art {
+  width: 40px;
+  height: 40px;
+  object-fit: cover;
+  border-radius: 4px;
+}
+
 .song-info {
   display: flex;
   flex-direction: column; /* put the title on top of the artist name */

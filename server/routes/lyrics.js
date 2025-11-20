@@ -27,7 +27,18 @@ router.get('/search', async (req, res) => {
 
   try {
     const songs = await searchSongs(query);
-    res.json({ songs });
+
+    const songsWithSpotify = await Promise.all(
+      songs.map(async (song) => {
+        const spotify = await searchTrack(song.title, song.artist);
+        return {
+          ...song,
+          albumArt: spotify ? spotify.albumArt : null,
+        };
+      })
+    );
+
+    res.json({ songs: songsWithSpotify });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Internal Server Error' });
