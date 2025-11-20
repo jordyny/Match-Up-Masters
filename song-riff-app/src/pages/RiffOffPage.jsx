@@ -2,11 +2,7 @@
  * Riff Off Page Component (Refactored)
  * 
  * Main game interface where users compare lyrics between two songs.
- * Follows SOLID principles:
- * - Single Responsibility: Delegates logic to custom hooks and services
- * - Open/Closed: Extensible through composition
- * - Dependency Inversion: Depends on abstractions (hooks/services)
- * 
+
  * @component
  */
 

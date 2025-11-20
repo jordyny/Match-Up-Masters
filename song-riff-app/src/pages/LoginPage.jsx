@@ -1,21 +1,20 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { motion } from 'framer-motion'; 
 import { pageVariants, pageTransition } from '../pageAnimations';
 import Button from '../components/Button';
+import { startSpotifyLogin } from '../services/authService';
 import './LoginPage.css';
 
 const LoginPage = ({ onLogin }) => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const handleSpotifyLogin = () => {
+    startSpotifyLogin().catch((error) => {
+      alert(error.message || 'Failed to start Spotify login.');
+    });
+  };
 
-  //Handle form submission
-  const handleSubmit = (e) => {
-    e.preventDefault(); // Prevent form from reloading the page
-    if (email && password) {
-      onLogin(email);
-    } else {
-      
-      alert("Please enter both email and password.");
+  const handleContinueWithoutSpotify = () => {
+    if (onLogin) {
+      onLogin('Guest');
     }
   };
 
@@ -33,27 +32,14 @@ const LoginPage = ({ onLogin }) => {
       <h1 className="title">Song Riff Off</h1>
       
       {/* Login form */}
-      <form onSubmit={handleSubmit} className="login-form">
-        <input
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          className="login-input"
-          required
-        />
-        <input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          className="login-input"
-          required
-        />
-        <Button primary type="submit">
-          Log In
+      <div className="login-form">
+        <Button primary type="button" onClick={handleSpotifyLogin}>
+          Log in with Spotify
         </Button>
-      </form>
+        <Button type="button" onClick={handleContinueWithoutSpotify}>
+          Continue without Spotify
+        </Button>
+      </div>
     </div>
     </motion.div>
   );

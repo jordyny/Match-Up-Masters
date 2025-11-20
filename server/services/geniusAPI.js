@@ -1,6 +1,19 @@
+/**
+ * Genius API service.
+ *
+ * Provides functions to search songs via the Genius API and scrape lyrics
+ * from a Genius song page.
+ */
 const axios = require('axios');
 const cheerio = require('cheerio');
 const GENIUS_API_KEY = process.env.GENIUS_API_KEY;
+
+/**
+ * Search for a single best matching song on Genius.
+ *
+ * @param {string} query - Search query entered by the user.
+ * @returns {Promise<{title: string, url: string} | null>} The top result or null.
+ */
 async function searchSong(query) {
 
   //goes to base url and submits get request with query/API key 
@@ -28,6 +41,13 @@ async function searchSong(query) {
 }
 
 // New function to return multiple search results
+/**
+ * Search Genius for multiple matching songs.
+ *
+ * @param {string} query - Search query entered by the user.
+ * @param {number} [limit=10] - Maximum number of hits to return.
+ * @returns {Promise<Array>} List of simplified song objects.
+ */
 async function searchSongs(query, limit = 10) {
   const url = 'https://api.genius.com/search';
   const response = await axios.get(url, {
@@ -56,6 +76,15 @@ async function searchSongs(query, limit = 10) {
 
 // function to get lyrics from song URL, needs to use cheerio package to parse HTML 
 // selector grabs each div that contains lyrics on the page, each loops through them one ny one 
+/**
+ * Fetch and clean lyrics from a Genius song URL.
+ *
+ * Downloads the page HTML, extracts the main lyrics containers, removes
+ * section headers and non-lyric noise, and returns a cleaned multiline string.
+ *
+ * @param {string} songUrl - Public Genius URL for the song.
+ * @returns {Promise<string>} Clean lyrics text with line breaks preserved.
+ */
 async function getLyricsFromUrl(songUrl) {
   const { data: html } = await axios.get(songUrl);
   const $ = cheerio.load(html);

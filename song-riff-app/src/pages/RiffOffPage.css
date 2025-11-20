@@ -249,7 +249,8 @@
 .mini-search-inner {
   width: 360px;
   max-height: 420px;
-  overflow: hidden;
+  overflow-y: auto;
+  overflow-x: hidden;
   border-radius: 12px;
   background-color: rgba(40, 40, 40, 0.8);
   backdrop-filter: blur(10px);
@@ -261,8 +262,6 @@
 
 .mini-song-list {
   margin-top: 0.5rem;
-  max-height: 320px;
-  overflow-y: auto;
   display: flex;
   flex-direction: column;
   gap: 0.5rem;

@@ -1,3 +1,9 @@
+/**
+ * Lyrics router
+ *
+ * Defines HTTP endpoints for searching songs and retrieving lyrics.
+ * All routes are mounted under `/lyrics` in `server.js`.
+ */
 const express = require('express');
 const router = express.Router();
 
@@ -5,6 +11,14 @@ const router = express.Router();
 const { searchSong, searchSongs, getLyricsFromUrl } = require('../services/geniusAPI');
 const { searchTrack } = require('../services/spotifyAPI');
 
+/**
+ * GET /lyrics/search
+ *
+ * Query params:
+ * - q: search query string
+ *
+ * Returns a list of matching songs from Genius.
+ */
 // Search for songs (returns list of matches)
 router.get('/search', async (req, res) => {
   const query = req.query.q;
@@ -13,13 +27,34 @@ router.get('/search', async (req, res) => {
 
   try {
     const songs = await searchSongs(query);
-    res.json({ songs });
+
+    const songsWithSpotify = await Promise.all(
+      songs.map(async (song) => {
+        const spotify = await searchTrack(song.title, song.artist);
+        return {
+          ...song,
+          albumArt: spotify ? spotify.albumArt : null,
+        };
+      })
+    );
+
+    res.json({ songs: songsWithSpotify });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Internal Server Error' });
   }
 });
 
+/**
+ * GET /lyrics/fetch
+ *
+ * Query params:
+ * - url: Genius song URL (required)
+ * - title: song title (optional, used for Spotify search)
+ * - artist: artist name (optional, used for Spotify search)
+ *
+ * Returns cleaned lyrics text and optional Spotify track metadata.
+ */
 // Get lyrics for a specific song by URL
 router.get('/fetch', async (req, res) => {
   const songUrl = req.query.url;
@@ -48,6 +83,14 @@ router.get('/fetch', async (req, res) => {
   }
 });
 
+/**
+ * GET /lyrics
+ *
+ * Legacy endpoint that searches for a single best match and returns its lyrics.
+ *
+ * Query params:
+ * - q: search query string
+ */
 // Original endpoint - search and get lyrics in one call
 router.get('/', async (req, res) => {
   const query = req.query.q;
