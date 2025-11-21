@@ -1,3 +1,11 @@
+/**
+ * Song List Item Component
+ * 
+ * Displays a single song item in a list with title, artist, and duration.
+ * 
+ * @component
+ */
+
 import React from 'react';
 import './SongListItem.css';
 
