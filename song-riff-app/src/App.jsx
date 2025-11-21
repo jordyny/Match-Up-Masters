@@ -7,7 +7,7 @@
  * @component
  */
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Routes, Route, useNavigate, useLocation } from 'react-router-dom';
 import { AnimatePresence } from 'framer-motion'; 
 import Header from './components/Header';
@@ -18,6 +18,9 @@ import RiffOffPage from './pages/RiffOffPage';
 import HowToPlayPage from './pages/HowToPlayPage';
 import TimerSelectPage from './pages/TimerSelectPage';
 import GameOverPage from './pages/GameOverPage';
+import ScoreboardPage from './pages/ScoreboardPage';
+import SpotifyCallbackPage from './pages/SpotifyCallbackPage';
+import { getStoredSpotifyAuth, clearSpotifyAuth } from './services/authService';
 
 function App() {
   // Authentication state - stores logged in user's email
@@ -30,6 +33,13 @@ function App() {
   const navigate = useNavigate();
   const location = useLocation(); 
 
+  useEffect(() => {
+    const stored = getStoredSpotifyAuth();
+    if (stored && stored.profile && stored.profile.email) {
+      setUserEmail(stored.profile.email);
+    }
+  }, []);
+
   /**
    * Handle successful user login
    * Sets user email and redirects to home page
@@ -38,6 +48,7 @@ function App() {
    */
   const handleLogin = (email) => {
     setUserEmail(email);
+    const stored = getStoredSpotifyAuth();
     navigate('/home');
   };
   
@@ -46,6 +57,7 @@ function App() {
    * Clears user email and redirects to login page
    */
   const handleLogout = () => {
+    clearSpotifyAuth();
     setUserEmail(null);
     navigate('/');
   };
@@ -74,6 +86,8 @@ function App() {
       />
       <Route path="/how-to" element={<HowToPlayPage />} />
       <Route path="/gameover" element={<GameOverPage />} />
+      <Route path="/scoreboard" element={<ScoreboardPage />} />
+      <Route path="/spotify-callback" element={<SpotifyCallbackPage onLogin={handleLogin} />} />
     </Routes>
 
         </div>

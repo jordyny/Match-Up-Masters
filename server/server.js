@@ -1,5 +1,11 @@
 
-//dummy File class for Node.js so it works well in server environment
+/**
+ * Express server entry point.
+ *
+ * Sets up the HTTP server, global middleware, and mounts feature routes.
+ * The server exposes lyrics-related endpoints under the `/lyrics` path.
+ */
+// Dummy File class for Node.js so code that checks for File runs in the server environment
 if (typeof File === 'undefined') global.File = class {};
 
 const express = require('express');

@@ -27,6 +27,9 @@ const handleSelect = (seconds) => {
         <h2 className="timer-title">Choose Your Challenge</h2>
 
         <div className="timer-options">
+          <button className="timer-btn pro" onClick={() => handleSelect(300)}>
+            5 Minutes (Super Easy)
+          </button>
           <button className="timer-btn easy" onClick={() => handleSelect(120)}>
             2 Minutes (Easy)
           </button>

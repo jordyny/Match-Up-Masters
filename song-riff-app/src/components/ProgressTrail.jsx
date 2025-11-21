@@ -67,6 +67,9 @@ const ProgressTrail = ({ count = 1, dots = [] }) => {
             <div className="dot-tooltip-text">
               <div className="dot-tooltip-title">{dots[hoveredIndex].title}</div>
               <div className="dot-tooltip-artist">{dots[hoveredIndex].artist}</div>
+              {dots[hoveredIndex].lyric && (
+                <div className="dot-tooltip-lyric">“{dots[hoveredIndex].lyric}”</div>
+              )}
             </div>
           </div>
         )}

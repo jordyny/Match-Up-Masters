@@ -2,16 +2,12 @@
  * Riff Off Page Component (Refactored)
  * 
  * Main game interface where users compare lyrics between two songs.
- * Follows SOLID principles:
- * - Single Responsibility: Delegates logic to custom hooks and services
- * - Open/Closed: Extensible through composition
- * - Dependency Inversion: Depends on abstractions (hooks/services)
- * 
+
  * @component
  */
 
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { Link, useParams, useNavigate } from 'react-router-dom';
+import { Link, useParams, useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion'; 
 import { pageVariants, pageTransition } from '../pageAnimations';
 import LyricColumn from '../components/LyricColumn';
@@ -32,6 +28,7 @@ import './RiffOffPage.css';
 const RiffOffPage = ({ songsWithLyrics, setSongsWithLyrics }) => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
   const initialSongId = id;
   
   // UI state
@@ -45,6 +42,10 @@ const RiffOffPage = ({ songsWithLyrics, setSongsWithLyrics }) => {
   const leftColRef = useRef(null);
   const rightColRef = useRef(null);
 
+  const initialDuration = location.state?.duration ?? Number(sessionStorage.getItem('riff_duration')) ?? 60;
+  const [timeLeft, setTimeLeft] = useState(initialDuration);
+  const [isTimeUp, setIsTimeUp] = useState(false);
+
   /**
    * Effect: Validate initial song exists
    */
@@ -53,6 +54,30 @@ const RiffOffPage = ({ songsWithLyrics, setSongsWithLyrics }) => {
       navigate('/new');
     }
   }, [initialSongId, songsWithLyrics, navigate]);
+
+  useEffect(() => {
+    if (timeLeft == null || isTimeUp) return;
+    const t = setInterval(() => {
+      setTimeLeft((prev) => {
+        if (prev <= 1) {
+          clearInterval(t);
+          setIsTimeUp(true);
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+    return () => clearInterval(t);
+  }, [timeLeft, isTimeUp]);
+
+  useEffect(() => {
+    if (timeLeft === 0) {
+      const saved = JSON.parse(localStorage.getItem('scores')) || [];
+      saved.push({ score: gameState.totalScore, date: new Date().toISOString() });
+      localStorage.setItem('scores', JSON.stringify(saved));
+      navigate('/gameover', { state: { totalScore: gameState.totalScore } });
+    }
+  }, [timeLeft, navigate, gameState.totalScore]);
 
   /**
    * Get lyrics array for a song by ID
@@ -70,7 +95,7 @@ const RiffOffPage = ({ songsWithLyrics, setSongsWithLyrics }) => {
 
   useEffect(() => {
     if (leftSong && gameState.dotCount === 1) {
-      setDots([{ title: leftSong.title, artist: leftSong.artist, albumArt: leftSong.spotify?.albumArt }]);
+      setDots([{ title: leftSong.title, artist: leftSong.artist, albumArt: leftSong.spotify?.albumArt, lyric: gameState.selectedLyric1 }]);
     } else if (!leftSong) {
       setDots([]);
     }
@@ -78,9 +103,20 @@ const RiffOffPage = ({ songsWithLyrics, setSongsWithLyrics }) => {
 
   useEffect(() => {
     if (rightSong && dots.length < gameState.dotCount) {
-      setDots((prev) => [...prev, { title: rightSong.title, artist: rightSong.artist, albumArt: rightSong.spotify?.albumArt }]);
+      setDots((prev) => [...prev, { title: rightSong.title, artist: rightSong.artist, albumArt: rightSong.spotify?.albumArt, lyric: gameState.selectedLyric2 }]);
     }
-  }, [gameState.dotCount, rightSong?.title, rightSong?.artist, rightSong?.spotify?.albumArt]);
+  }, [gameState.dotCount, rightSong?.title, rightSong?.artist, rightSong?.spotify?.albumArt, gameState.selectedLyric2]);
+
+  // Keep first dot's lyric in sync with selectedLyric1
+  useEffect(() => {
+    if (dots.length > 0) {
+      setDots((prev) => {
+        const next = [...prev];
+        next[0] = { ...next[0], lyric: gameState.selectedLyric1 };
+        return next;
+      });
+    }
+  }, [gameState.selectedLyric1]);
 
   /**
    * Handle song selection from picker
@@ -116,6 +152,9 @@ const RiffOffPage = ({ songsWithLyrics, setSongsWithLyrics }) => {
       variants={pageVariants}
       transition={pageTransition}
     >
+      <div className="timer-overlay">
+        {Math.floor(timeLeft / 60)}:{String(timeLeft % 60).padStart(2, '0')}
+      </div>
       {/* Fixed Progress Trail */}
       <ProgressTrail count={gameState.dotCount} dots={dots} />
       {/* Scoreboard pill to the left of Save button */}

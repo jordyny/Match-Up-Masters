@@ -7,8 +7,11 @@
  * @component
  */
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import SongListItem from './SongListItem';
+import { FiChevronDown, FiChevronUp } from 'react-icons/fi';
+import { fetchLikedTracks } from '../services/spotifyUserService';
+import { searchForSongs } from '../services/lyricsService';
 
 /**
  * SongPicker component
@@ -34,9 +37,66 @@ const SongPicker = ({
   songsWithLyrics,
   excludeSongId
 }) => {
+  const [dots, setDots] = useState('');
+  const [showLibrary, setShowLibrary] = useState(false);
+  const [libraryLoading, setLibraryLoading] = useState(false);
+  const [libraryError, setLibraryError] = useState('');
+  const [libraryTracks, setLibraryTracks] = useState([]);
+  useEffect(() => {
+    if (!isLoading) {
+      setDots('');
+      return;
+    }
+    const id = setInterval(() => {
+      setDots((prev) => (prev.length >= 3 ? '' : prev + '.'));
+    }, 300);
+    return () => clearInterval(id);
+  }, [isLoading]);
   // Filter out the left song from previously loaded songs
   const previouslyLoadedSongs = Object.values(songsWithLyrics)
     .filter(s => s.id !== excludeSongId);
+
+  const loadSpotifyLibrary = async () => {
+    setLibraryLoading(true);
+    setLibraryError('');
+
+    try {
+      const tracks = await fetchLikedTracks(50, 0);
+      setLibraryTracks(tracks);
+    } catch (err) {
+      setLibraryError(err.message);
+      setLibraryTracks([]);
+    } finally {
+      setLibraryLoading(false);
+    }
+  };
+
+  const handleToggleLibrary = () => {
+    const next = !showLibrary;
+    setShowLibrary(next);
+    if (next && libraryTracks.length === 0 && !libraryLoading) {
+      loadSpotifyLibrary();
+    }
+  };
+
+  const handleLibrarySongSelect = async (track) => {
+    setLibraryError('');
+
+    try {
+      const query = `${track.name} ${track.artist}`;
+      const songs = await searchForSongs(query);
+
+      if (!songs || songs.length === 0) {
+        setLibraryError('Could not find lyrics for this Spotify track. Try a different one.');
+        return;
+      }
+
+      // Use the top Genius result to start the game via parent handler
+      onSongSelect(songs[0]);
+    } catch (err) {
+      setLibraryError(err.message);
+    }
+  };
 
   return (
     <div className="mini-search">
@@ -73,13 +133,80 @@ const SongPicker = ({
                 fontWeight: 'bold',
               }}
             >
-              {isLoading ? 'Searching...' : 'Search'}
+              {isLoading ? `Searching${dots}` : 'Search'}
             </button>
           </div>
           {error && (
             <p style={{ color: 'tomato', marginTop: '0.5rem', fontSize: '0.85rem' }}>{error}</p>
           )}
         </form>
+
+        {/* Spotify Library Toggle */}
+        <div style={{ borderBottom: '1px solid #333' }}>
+          <button
+            type="button"
+            onClick={handleToggleLibrary}
+            style={{
+              width: '100%',
+              padding: '0.5rem 1rem',
+              border: 'none',
+              backgroundColor: 'transparent',
+              color: 'white',
+              textAlign: 'left',
+              fontSize: '0.9rem',
+              fontWeight: 'bold',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+            }}
+          >
+            <span>
+              {showLibrary ? 'Hide Spotify Library' : 'Choose from Spotify Library'}
+            </span>
+            <span style={{ display: 'flex', alignItems: 'center' }}>
+              {showLibrary ? <FiChevronUp /> : <FiChevronDown />}
+            </span>
+          </button>
+
+          {showLibrary && (
+            <div style={{ padding: '0.5rem 1rem' }}>
+              {libraryLoading && (
+                <p style={{ color: '#888', fontSize: '0.85rem' }}>Loading your liked songs...</p>
+              )}
+              {libraryError && (
+                <p style={{ color: 'tomato', marginTop: '0.25rem', fontSize: '0.85rem' }}>{libraryError}</p>
+              )}
+              {!libraryLoading && !libraryError && libraryTracks.length === 0 && (
+                <p style={{ color: '#888', fontSize: '0.85rem' }}>
+                  No liked songs found in your Spotify library.
+                </p>
+              )}
+              {!libraryLoading && libraryTracks.length > 0 && (
+                <div className="song-list" style={{ marginTop: '0.5rem' }}>
+                  {libraryTracks.map((track) => (
+                    <div
+                      key={track.id}
+                      className="mini-song-item"
+                      onClick={() => handleLibrarySongSelect(track)}
+                      style={{
+                        cursor: libraryLoading ? 'wait' : 'pointer',
+                        opacity: libraryLoading ? 0.6 : 1,
+                      }}
+                    >
+                      <SongListItem
+                        title={track.name}
+                        artist={track.artist}
+                        albumArt={track.albumArt}
+                        duration=""
+                      />
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+        </div>
 
         <div className="mini-song-list">
           {/* Show search results */}
@@ -98,7 +225,12 @@ const SongPicker = ({
                     opacity: isLoading ? 0.6 : 1,
                   }}
                 >
-                  <SongListItem title={song.title} artist={song.artist} duration="" />
+                  <SongListItem
+                    title={song.title}
+                    artist={song.artist}
+                    albumArt={song.albumArt}
+                    duration=""
+                  />
                 </div>
               ))}
             </>
@@ -126,7 +258,12 @@ const SongPicker = ({
                     opacity: isLoading ? 0.6 : 1,
                   }}
                 >
-                  <SongListItem title={song.title} artist={song.artist} duration="" />
+                  <SongListItem
+                    title={song.title}
+                    artist={song.artist}
+                    albumArt={song.spotify?.albumArt}
+                    duration=""
+                  />
                 </div>
               ))}
             </>

@@ -1,3 +1,9 @@
+/**
+ * HomePage
+ *
+ * Landing page after login. Presents navigation to start a new riff, see
+ * instructions, adjust timers, and view scores.
+ */
 import React from 'react';
 import { motion } from 'framer-motion'; 
 import { pageVariants, pageTransition } from '../pageAnimations';
@@ -14,13 +20,16 @@ const HomePage = () => {
       variants={pageVariants}
       transition={pageTransition}
     >
+      {/* Main home page content wrapper */}
       <div className="page-content home-page">
-        {/* Navigation buttons */}
-        {/* Go to the Timer Select page after Home */}
-        <Button to="/timer">New Riff</Button>
+        <div className="home-content">
+          {/* Navigation buttons */}
+          {/* Go to the Timer Select page after Home */}
+          <Button to="/timer">New Riff</Button>
 
-        {/* Past Riffs can stay as is or go to a new page later */}
-        <Button to="/home">Past Riffs</Button>
+          {/* Past Riffs can stay as is or go to a new page later */}
+          <Button to="/home">Past Riffs</Button>
+        </div>
       </div>
     </motion.div>
   );
