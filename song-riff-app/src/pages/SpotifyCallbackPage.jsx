@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { pageVariants, pageTransition } from '../pageAnimations';
@@ -9,8 +9,19 @@ const SpotifyCallbackPage = ({ onLogin }) => {
   const location = useLocation();
   const navigate = useNavigate();
   const [error, setError] = useState('');
+  const hasHandledRef = useRef(false);
 
   useEffect(() => {
+    console.log('[SpotifyCallback] Effect run', {
+      search: location.search,
+      hasHandled: hasHandledRef.current,
+    });
+
+    if (hasHandledRef.current) {
+      console.log('[SpotifyCallback] Already handled this callback, skipping');
+      return;
+    }
+
     const params = new URLSearchParams(location.search);
     const code = params.get('code');
     const errorParam = params.get('error');
@@ -27,7 +38,10 @@ const SpotifyCallbackPage = ({ onLogin }) => {
 
     let isMounted = true;
 
-    (async () => {
+    hasHandledRef.current = true;
+    console.log('[SpotifyCallback] Handling Spotify callback with code', code ? code.substring(0, 10) + '...' : null);
+
+       (async () => {
       try {
         const auth = await handleSpotifyCallback(code);
         if (!isMounted) return;
@@ -35,7 +49,10 @@ const SpotifyCallbackPage = ({ onLogin }) => {
           const email = auth.profile.email || '';
           onLogin(email);
         }
+        console.log('[SpotifyCallback] Navigating to /home');
         navigate('/home', { replace: true });
+        // Hard redirect fallback to ensure we leave the callback page
+        window.location.assign('/home');
       } catch (e) {
         if (!isMounted) return;
         setError(e.message || 'Failed to complete Spotify login.');

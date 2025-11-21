@@ -63,9 +63,24 @@ export async function startSpotifyLogin() {
   const clientId = getClientId();
   const redirectUri = getRedirectUri();
 
+  console.log('[Spotify] startSpotifyLogin context', {
+    location: window.location.href,
+    origin: window.location.origin,
+    existingVerifierLength:
+      (window.sessionStorage.getItem(CODE_VERIFIER_KEY) || '').length,
+  });
+
   const codeVerifier = createRandomString(64);
   const codeChallenge = await generateCodeChallenge(codeVerifier);
   window.sessionStorage.setItem(CODE_VERIFIER_KEY, codeVerifier);
+
+  console.log('[Spotify] Starting login', {
+    clientId: clientId ? clientId.slice(0, 5) + '...' : null,
+    redirectUri,
+    codeVerifierLength: codeVerifier.length,
+    storedVerifierLength:
+      (window.sessionStorage.getItem(CODE_VERIFIER_KEY) || '').length,
+  });
 
   const params = new URLSearchParams({
     client_id: clientId,
@@ -84,7 +99,18 @@ export async function startSpotifyLogin() {
 async function exchangeCodeForToken(code) {
   const clientId = getClientId();
   const redirectUri = getRedirectUri();
+  const storedBefore = window.sessionStorage.getItem(CODE_VERIFIER_KEY) || '';
   const codeVerifier = window.sessionStorage.getItem(CODE_VERIFIER_KEY);
+
+  console.log('[Spotify] Exchanging code for token', {
+    code: code ? code.substring(0, 10) + '...' : null,
+    clientId: clientId ? clientId.slice(0, 5) + '...' : null,
+    redirectUri,
+    origin: window.location.origin,
+    hasCodeVerifier: !!codeVerifier,
+    codeVerifierLength: codeVerifier ? codeVerifier.length : 0,
+    storedBeforeLength: storedBefore.length,
+  });
 
   if (!codeVerifier) {
     throw new Error('Missing PKCE code verifier. Please start the login flow again.');
@@ -118,6 +144,10 @@ async function exchangeCodeForToken(code) {
       status: response.status,
       statusText: response.statusText,
       body: data,
+      debug: {
+        redirectUri,
+        clientId: clientId ? clientId.slice(0, 5) + '...' : null,
+      },
     });
 
     const message =
@@ -140,6 +170,12 @@ async function exchangeCodeForToken(code) {
     expiresAt,
   };
 
+  console.log('[Spotify] Token exchange success', {
+    hasAccessToken: !!auth.accessToken,
+    hasRefreshToken: !!auth.refreshToken,
+    expiresAt,
+  });
+
   window.localStorage.setItem(SPOTIFY_AUTH_KEY, JSON.stringify(auth));
 
   return auth;
@@ -161,6 +197,7 @@ export function clearSpotifyAuth() {
 }
 
 export async function fetchSpotifyProfile(accessToken) {
+  console.log('[Spotify] Fetching Spotify profile');
   const response = await fetch('https://api.spotify.com/v1/me', {
     headers: {
       Authorization: `Bearer ${accessToken}`,
@@ -168,15 +205,36 @@ export async function fetchSpotifyProfile(accessToken) {
   });
 
   if (!response.ok) {
+    console.error('[Spotify] Failed to fetch profile', {
+      status: response.status,
+      statusText: response.statusText,
+    });
     throw new Error('Failed to fetch Spotify profile');
   }
 
-  return response.json();
+  const profile = await response.json();
+  console.log('[Spotify] Spotify profile fetched', {
+    email: profile && profile.email,
+    id: profile && profile.id,
+  });
+
+  return profile;
 }
 
 export async function handleSpotifyCallback(code) {
+  console.log('[Spotify] handleSpotifyCallback start', {
+    code: code ? code.substring(0, 10) + '...' : null,
+  });
+
   const auth = await exchangeCodeForToken(code);
+  console.log('[Spotify] handleSpotifyCallback after token', {
+    hasAccessToken: !!auth.accessToken,
+  });
+
   const profile = await fetchSpotifyProfile(auth.accessToken);
+  console.log('[Spotify] handleSpotifyCallback after profile', {
+    email: profile && profile.email,
+  });
 
   const stored = {
     ...auth,
@@ -185,6 +243,17 @@ export async function handleSpotifyCallback(code) {
 
   window.localStorage.setItem(SPOTIFY_AUTH_KEY, JSON.stringify(stored));
   window.sessionStorage.removeItem(CODE_VERIFIER_KEY);
+
+  console.log('[Spotify] handleSpotifyCallback done');
+
+  // Ensure we always leave the callback page after a successful login
+  try {
+    if (typeof window !== 'undefined') {
+      window.location.assign('/home');
+    }
+  } catch (e) {
+    // ignore navigation errors
+  }
 
   return stored;
 }
