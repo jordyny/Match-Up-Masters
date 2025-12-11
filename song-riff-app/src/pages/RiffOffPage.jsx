@@ -8,7 +8,6 @@
 
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useParams, useNavigate, useLocation } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion'; 
 import { pageVariants, pageTransition } from '../pageAnimations';
 import LyricColumn from '../components/LyricColumn';
 import SongPicker from '../components/SongPicker';

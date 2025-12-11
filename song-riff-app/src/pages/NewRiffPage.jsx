@@ -9,7 +9,6 @@
 
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
 import { pageVariants, pageTransition } from '../pageAnimations';
 import SongListItem from '../components/SongListItem';
 import { searchForSongs, fetchSongWithLyrics } from '../services/lyricsService';

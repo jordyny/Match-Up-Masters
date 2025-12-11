@@ -48,7 +48,7 @@ function App() {
    */
   const handleLogin = (email) => {
     setUserEmail(email);
-    const stored = getStoredSpotifyAuth();
+    const STORED = getStoredSpotifyAuth();
     navigate('/home');
   };
   

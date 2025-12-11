@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
 import { pageVariants, pageTransition } from '../pageAnimations';
 import { handleSpotifyCallback } from '../services/authService';
 import './LoginPage.css';

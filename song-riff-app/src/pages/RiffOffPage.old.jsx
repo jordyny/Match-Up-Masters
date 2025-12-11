@@ -9,7 +9,6 @@
 
 import React, { useEffect, useMemo, useState } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion'; 
 import { pageVariants, pageTransition } from '../pageAnimations';
 import SongListItem from '../components/SongListItem';
 import SpotifyPlayer from '../components/SpotifyPlayer';

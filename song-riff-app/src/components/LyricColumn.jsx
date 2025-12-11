@@ -18,7 +18,7 @@ import React from 'react';
  * @param {number} songId - Song identifier (1 or 2)
  * @param {Function} onLyricClick - Callback when a lyric line is clicked
  * @param {string} selectedLyric - Currently selected lyric line
- * @param {Object} spotify - Spotify track data
+ *
  */
 const LyricColumn = ({ 
   songTitle, 
@@ -26,8 +26,7 @@ const LyricColumn = ({
   lyrics, 
   songId, 
   onLyricClick, 
-  selectedLyric, 
-  spotify 
+  selectedLyric
 }) => (
   <>
     {/* Selected Lyric Display - above the entire column */}
