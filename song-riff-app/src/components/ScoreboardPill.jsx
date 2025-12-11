@@ -1,3 +1,11 @@
+/**
+ * Scoreboard Pill Component
+ * 
+ * Displays a compact scoreboard pill that can be expanded to show detailed score information.
+ * 
+ * @component
+ */
+
 import React, { useState } from 'react';
 import './ScoreboardPill.css';
 

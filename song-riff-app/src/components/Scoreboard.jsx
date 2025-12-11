@@ -1,3 +1,11 @@
+/**
+ * Scoreboard Component
+ * 
+ * Displays a the score of a riff game including the current score and high score.
+ * 
+ * @component
+ */
+
 import React from "react";
 import "./Scoreboard.css";
 
