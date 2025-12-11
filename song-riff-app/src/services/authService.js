@@ -109,7 +109,7 @@ async function exchangeCodeForToken(code) {
   let data;
   try {
     data = await response.json();
-  } catch (e) {
+  } catch {
     data = null;
   }
 
@@ -150,7 +150,7 @@ export function getStoredSpotifyAuth() {
   if (!raw) return null;
   try {
     return JSON.parse(raw);
-  } catch (e) {
+  } catch {
     return null;
   }
 }

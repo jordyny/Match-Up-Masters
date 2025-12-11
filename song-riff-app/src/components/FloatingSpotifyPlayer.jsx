@@ -59,12 +59,12 @@ const FloatingSpotifyPlayer = ({ containerRef, targetRef, track }) => {
       window.removeEventListener('scroll', onScroll);
       if (container) container.removeEventListener('scroll', onScroll);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    
   }, [containerRef, targetRef]);
 
   useEffect(() => {
     computePosition();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    
   }, [track]);
 
   useEffect(() => {
@@ -73,7 +73,7 @@ const FloatingSpotifyPlayer = ({ containerRef, targetRef, track }) => {
     const onTransitionEnd = () => computePosition();
     container.addEventListener('transitionend', onTransitionEnd);
     return () => container.removeEventListener('transitionend', onTransitionEnd);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    
   }, [containerRef, targetRef]);
 
   if (!track) return null;

@@ -1,5 +1,4 @@
-import React from 'react';
-import { motion } from 'framer-motion'; 
+import React from 'react'; 
 import { pageVariants, pageTransition } from '../pageAnimations';
 import Button from '../components/Button';
 import { startSpotifyLogin } from '../services/authService';

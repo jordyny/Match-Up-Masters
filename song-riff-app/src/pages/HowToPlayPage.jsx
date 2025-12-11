@@ -1,5 +1,4 @@
 import React from 'react';
-import { motion } from 'framer-motion';
 import { pageVariants, pageTransition } from '../pageAnimations';
 import './HowToPlayPage.css';
 
