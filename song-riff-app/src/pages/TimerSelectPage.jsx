@@ -1,6 +1,7 @@
 import React from 'react';
 import { pageVariants, pageTransition } from '../pageAnimations';
 import { useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import './TimerSelectPage.css';
 
 const TimerSelectPage = () => {

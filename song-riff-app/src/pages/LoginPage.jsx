@@ -2,6 +2,7 @@ import React from 'react';
 import { pageVariants, pageTransition } from '../pageAnimations';
 import Button from '../components/Button';
 import { startSpotifyLogin } from '../services/authService';
+import { motion } from 'framer-motion'
 import './LoginPage.css';
 
 const LoginPage = ({ onLogin }) => {

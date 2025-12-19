@@ -14,6 +14,7 @@ import SongListItem from '../components/SongListItem';
 import { searchForSongs, fetchSongWithLyrics } from '../services/lyricsService';
 import { fetchLikedTracks } from '../services/spotifyUserService';
 import { FiChevronDown, FiChevronUp } from 'react-icons/fi';
+import { motion } from 'framer-motion';
 import './NewRiffPage.css';
 
 const NewRiffPage = ({ songsWithLyrics, setSongsWithLyrics }) => {

@@ -16,6 +16,7 @@ import ScoreboardPill from '../components/ScoreboardPill';
 import FloatingSpotifyPlayer from '../components/FloatingSpotifyPlayer';
 import { useRiffOffGame } from '../hooks/useRiffOffGame';
 import { useSongSearch } from '../hooks/useSongSearch';
+import { AnimatePresence, motion } from 'framer-motion';
 
 import './RiffOffPage.css';
 

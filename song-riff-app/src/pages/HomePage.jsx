@@ -7,6 +7,7 @@
 import React from 'react';
 import { pageVariants, pageTransition } from '../pageAnimations';
 import Button from '../components/Button';
+import { motion } from 'framer-motion';
 import './HomePage.css';
 
 const HomePage = () => {
